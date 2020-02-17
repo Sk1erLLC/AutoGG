@@ -1,0 +1,1 @@
+<p><Automatically say "gg/good game" after a game has ended on Hypixel.</p>

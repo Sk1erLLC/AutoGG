@@ -1,0 +1,19 @@
+[
+  {
+    "modid": "autogg",
+    "name": "AutoGG",
+    "description": "AutoGG automatically says \"gg\" after a game has ended on Hypixel.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://sk1er.club/",
+    "updateUrl": "",
+    "authorList": [
+      "2Pi",
+      "Sk1er LLC"
+    ],
+    "credits": "Created by 2PI, maintained and updated by Sk1er LLC",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
