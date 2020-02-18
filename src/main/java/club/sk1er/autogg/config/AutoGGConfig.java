@@ -15,7 +15,7 @@ public class AutoGGConfig extends Vigilant {
         subcategory = "General",
         description = "Toggle AutoGG entirely."
     )
-    public static boolean autoGGEnabled = true;
+    private boolean autoGGEnabled = true;
 
     @Property(
         type = PropertyType.SWITCH,
@@ -24,7 +24,7 @@ public class AutoGGConfig extends Vigilant {
         subcategory = "Miscellaneous",
         description = "Remove gg's from chat."
     )
-    public static boolean antiGGEnabled = false;
+    private boolean antiGGEnabled = false;
 
 
     @Property(
@@ -35,7 +35,7 @@ public class AutoGGConfig extends Vigilant {
         description = "Delay after the game ends to say the message. (ms)",
         max = 5000
     )
-    public static int autoGGDelay = 1000;
+    private int autoGGDelay = 1000;
 
 
     @Property(
@@ -46,7 +46,7 @@ public class AutoGGConfig extends Vigilant {
         description = "Choose what message is said on game completion",
         options = {"gg", "GG", "gf", "Good Game", "Good Fight"}
     )
-    public static int autoGGPhrase = 1;
+    private int autoGGPhrase = 1;
 
 
     @Property(
@@ -56,7 +56,7 @@ public class AutoGGConfig extends Vigilant {
         subcategory = "Secondary Message",
         description = "Enable a secondary message following your first GG"
     )
-    public static boolean secondaryEnabled = false;
+    private boolean secondaryEnabled = false;
 
     @Property(
         type = PropertyType.SELECTOR,
@@ -66,18 +66,45 @@ public class AutoGGConfig extends Vigilant {
         description = "Choose a secondary message",
         options = {"Have a good day!", "<3", "AutoGG By Sk1er!"}
     )
-    public static int autoGGPhrase2 = 1;
+    private int autoGGPhrase2 = 1;
 
     @Property(
         type = PropertyType.SLIDER,
         name = "Second Message Delay",
         category = "General",
         subcategory = "Secondary Message",
-        description = "Delay between the first and second end of game messages. (ms)",
+        description = "Delay between the first & second end of game messages. (ms)",
         max = 5000
     )
-    public static int secondaryDelay = 1000;
+    private int secondaryDelay = 1000;
 
+    public boolean isAutoGGEnabled() {
+        return autoGGEnabled;
+    }
+
+    public boolean isAntiGGEnabled() {
+        return antiGGEnabled;
+    }
+
+    public int getAutoGGDelay() {
+        return autoGGDelay;
+    }
+
+    public int getAutoGGPhrase() {
+        return autoGGPhrase;
+    }
+
+    public boolean isSecondaryEnabled() {
+        return secondaryEnabled;
+    }
+
+    public int getAutoGGPhrase2() {
+        return autoGGPhrase2;
+    }
+
+    public int getSecondaryDelay() {
+        return secondaryDelay;
+    }
 
     public AutoGGConfig() {
         super(new File("./config/autogg.toml"));

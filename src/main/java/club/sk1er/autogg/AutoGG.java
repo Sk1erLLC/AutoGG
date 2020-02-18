@@ -21,6 +21,7 @@ import java.util.List;
 public class AutoGG {
 
     private List<String> triggers = new ArrayList<>();
+    private AutoGGConfig autoGGConfig;
     private boolean running;
 
     @Mod.Instance("autogg")
@@ -29,9 +30,12 @@ public class AutoGG {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         ModCoreInstaller.initializeModCore(Minecraft.getMinecraft().mcDataDir);
-        AutoGGConfig autoGGConfig = new AutoGGConfig();
+
+        autoGGConfig = new AutoGGConfig();
         autoGGConfig.preload();
+
         running = false;
+
         ClientCommandHandler.instance.registerCommand(new AutoGGCommand());
         Multithreading.runAsync(() -> {
             try {
@@ -56,5 +60,9 @@ public class AutoGG {
 
     public void setRunning(boolean running) {
         this.running = running;
+    }
+
+    public AutoGGConfig getAutoGGConfig() {
+        return autoGGConfig;
     }
 }

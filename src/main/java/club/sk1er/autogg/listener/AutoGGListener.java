@@ -26,11 +26,12 @@ public class AutoGGListener {
     @SubscribeEvent
     public void onChat(ClientChatReceivedEvent event) {
         String s = event.message.getUnformattedText().toLowerCase(Locale.ENGLISH);
-        if (AutoGGConfig.antiGGEnabled && invoked) {
+        if (AutoGG.instance.getAutoGGConfig().isAntiGGEnabled() && invoked) {
             for (String primaryString : getPrimaryStrings()) {
                 if (s.contains(primaryString.toLowerCase(Locale.ENGLISH)))
                     event.setCanceled(true);
             }
+
             for (String primaryString : getSecondaryStrings()) {
                 if (s.contains(primaryString.toLowerCase(Locale.ENGLISH)))
                     event.setCanceled(true);
@@ -39,7 +40,7 @@ public class AutoGGListener {
 
         String unformattedText = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
 
-        if (!MinecraftUtils.isHypixel() || !AutoGGConfig.autoGGEnabled || AutoGG.instance.isRunning() || AutoGG.instance.getTriggers().isEmpty()) {
+        if (!MinecraftUtils.isHypixel() || !AutoGG.instance.getAutoGGConfig().isAutoGGEnabled() || AutoGG.instance.isRunning() || AutoGG.instance.getTriggers().isEmpty()) {
             return;
         }
 
@@ -49,22 +50,22 @@ public class AutoGGListener {
             Multithreading.schedule(() -> {
                 try {
                     Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                        "/achat " + (getPrimaryString())
+                            "/achat " + (getPrimaryString())
                     );
-                    if (AutoGGConfig.secondaryEnabled) {
+                    if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled()) {
                         Multithreading.schedule(() -> {
                             Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                                "/achat " + (getSecondString())
+                                    "/achat " + (getSecondString())
                             );
                             end();
-                        }, AutoGGConfig.secondaryDelay, TimeUnit.MILLISECONDS);
+                        }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay(), TimeUnit.MILLISECONDS);
                         return;
                     }
                     end();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }, AutoGGConfig.autoGGDelay, TimeUnit.MILLISECONDS);
+            }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay(), TimeUnit.MILLISECONDS);
         }
     }
 
@@ -78,21 +79,23 @@ public class AutoGGListener {
     }
 
     private String getPrimaryString() {
-        int autoGGPhrase = AutoGGConfig.autoGGPhrase;
+        int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase();
         String[] primaryStrings = getPrimaryStrings();
         if (autoGGPhrase > 0 && autoGGPhrase < primaryStrings.length) {
             return primaryStrings[autoGGPhrase];
         }
+
         return "gg";
     }
 
     private String[] getPrimaryStrings() {
         try {
-            Property autoGGPhrase = AutoGGConfig.class.getDeclaredField("autoZGGPhrase").getAnnotation(Property.class);
+            Property autoGGPhrase = AutoGGConfig.class.getDeclaredField("autoGGPhrase").getAnnotation(Property.class);
             return autoGGPhrase.options();
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
+
         return new String[0];
     }
 
@@ -103,14 +106,17 @@ public class AutoGGListener {
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
+
         return new String[0];
     }
 
     private String getSecondString() {
-        int autoGGPhrase = AutoGGConfig.autoGGPhrase2;
+        int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase2();
         String[] primaryStrings = getSecondaryStrings();
-        if (autoGGPhrase > 0 && autoGGPhrase < primaryStrings.length)
+        if (autoGGPhrase > 0 && autoGGPhrase < primaryStrings.length) {
             return primaryStrings[autoGGPhrase];
+        }
+
         return "gg";
     }
 }
