@@ -44,7 +44,7 @@ public class AutoGGConfig extends Vigilant {
         category = "General",
         subcategory = "General",
         description = "Choose what message is said on game completion",
-        options = {"gg", "GG", "gf", "Good Game", "Good Fight"}
+        options = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"}
     )
     private int autoGGPhrase = 1;
 
