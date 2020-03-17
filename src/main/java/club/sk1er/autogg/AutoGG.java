@@ -17,10 +17,10 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod(modid = "autogg", name = "AutoGG", version = "3.0")
+@Mod(modid = "autogg", name = "AutoGG", version = "3.1")
 public class AutoGG {
 
-    private List<String> triggers = new ArrayList<>();
+    private final List<String> triggers = new ArrayList<>();
     private AutoGGConfig autoGGConfig;
     private boolean running;
 

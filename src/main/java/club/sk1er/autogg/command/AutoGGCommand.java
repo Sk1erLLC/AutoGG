@@ -1,6 +1,6 @@
 package club.sk1er.autogg.command;
 
-import club.sk1er.autogg.config.AutoGGConfig;
+import club.sk1er.autogg.AutoGG;
 import club.sk1er.mods.core.ModCore;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import net.minecraft.command.CommandBase;
@@ -35,7 +35,7 @@ public class AutoGGCommand extends CommandBase {
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
         if (args.length == 0) {
-            ModCore.getInstance().getGuiHandler().open(new AutoGGConfig().gui());
+            ModCore.getInstance().getGuiHandler().open(AutoGG.instance.getAutoGGConfig().gui());
         } else {
             MinecraftUtils.sendMessage(EnumChatFormatting.RED + "AutoGG has no arguments. Usage: /autogg");
         }
