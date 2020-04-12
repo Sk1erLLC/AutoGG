@@ -26,7 +26,6 @@ public class AutoGGConfig extends Vigilant {
     )
     private boolean antiGGEnabled = false;
 
-
     @Property(
         type = PropertyType.SLIDER,
         name = "Delay",
@@ -37,7 +36,6 @@ public class AutoGGConfig extends Vigilant {
     )
     private int autoGGDelay = 1000;
 
-
     @Property(
         type = PropertyType.SELECTOR,
         name = "Phrase",
@@ -47,7 +45,6 @@ public class AutoGGConfig extends Vigilant {
         options = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"}
     )
     private int autoGGPhrase = 1;
-
 
     @Property(
         type = PropertyType.SWITCH,
