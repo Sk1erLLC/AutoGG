@@ -10,6 +10,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import java.util.regex.Pattern;
 
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +36,10 @@ public class AutoGGListener {
             for (String primaryString : getSecondaryStrings()) {
                 if (s.contains(primaryString.toLowerCase(Locale.ENGLISH)))
                     event.setCanceled(true);
+            }
+        } else if (AutoGG.instance.getAutoGGConfig().isAntiKarmaEnabled() && invoked) {
+            if (Pattern.compile("^\\+(?<karma>\\d)+ karma!$").matcher(s).matches()) {
+                event.setCanceled(true);
             }
         }
 
