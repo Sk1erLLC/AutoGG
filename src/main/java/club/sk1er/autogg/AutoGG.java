@@ -17,7 +17,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod(modid = "autogg", name = "AutoGG", version = "3.1")
+@Mod(modid = "autogg", name = "AutoGG", version = "3.2")
 public class AutoGG {
 
     private final List<String> triggers = new ArrayList<>();
