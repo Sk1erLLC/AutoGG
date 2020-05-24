@@ -27,6 +27,15 @@ public class AutoGGConfig extends Vigilant {
     private boolean antiGGEnabled = false;
 
     @Property(
+        type = PropertyType.SWITCH,
+        name = "Anti Karma",
+        category = "General",
+        subcategory = "Miscellaneous",
+        description = "Remove Karma messages from chat."
+    )
+    private boolean antiKarmaEnabled = false;
+
+    @Property(
         type = PropertyType.SLIDER,
         name = "Delay",
         category = "General",
@@ -82,6 +91,8 @@ public class AutoGGConfig extends Vigilant {
     public boolean isAntiGGEnabled() {
         return antiGGEnabled;
     }
+
+    public boolean isAntiKarmaEnabled() { return antiKarmaEnabled; }
 
     public int getAutoGGDelay() {
         return autoGGDelay;
