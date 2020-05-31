@@ -49,28 +49,30 @@ public class AutoGGListener {
             return;
         }
 
-        if (AutoGG.instance.getTriggers().stream().anyMatch(unformattedText::contains) && unformattedText.startsWith(" ")) {
-            AutoGG.instance.setRunning(true);
-            invoked = true;
-            Multithreading.schedule(() -> {
-                try {
-                    Minecraft.getMinecraft().thePlayer.sendChatMessage(
+        for (String trigger : AutoGG.instance.getTriggers()) {
+            if (unformattedText.contains(trigger) && unformattedText.startsWith(" ")) {
+                AutoGG.instance.setRunning(true);
+                invoked = true;
+                Multithreading.schedule(() -> {
+                    try {
+                        Minecraft.getMinecraft().thePlayer.sendChatMessage(
                             "/achat " + (getPrimaryString())
-                    );
-                    if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled()) {
-                        Multithreading.schedule(() -> {
-                            Minecraft.getMinecraft().thePlayer.sendChatMessage(
+                        );
+                        if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled()) {
+                            Multithreading.schedule(() -> {
+                                Minecraft.getMinecraft().thePlayer.sendChatMessage(
                                     "/achat " + (getSecondString())
-                            );
-                            end();
-                        }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay(), TimeUnit.MILLISECONDS);
-                        return;
+                                );
+                                end();
+                            }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay(), TimeUnit.MILLISECONDS);
+                            return;
+                        }
+                        end();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    end();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay(), TimeUnit.MILLISECONDS);
+                }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay(), TimeUnit.MILLISECONDS);
+            }
         }
     }
 
