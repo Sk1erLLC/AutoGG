@@ -2,6 +2,7 @@ package club.sk1er.autogg.listener;
 
 import club.sk1er.autogg.AutoGG;
 import club.sk1er.autogg.config.AutoGGConfig;
+import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.vigilance.data.Property;
@@ -26,28 +27,28 @@ public class AutoGGListener {
 
     @SubscribeEvent
     public void onChat(ClientChatReceivedEvent event) {
-        String s = event.message.getUnformattedText().toLowerCase(Locale.ENGLISH);
+        String unformattedText = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
         if (AutoGG.instance.getAutoGGConfig().isAntiGGEnabled() && invoked) {
             for (String primaryString : getPrimaryStrings()) {
-                if (s.contains(primaryString.toLowerCase(Locale.ENGLISH)))
+                if (unformattedText.contains(primaryString.toLowerCase(Locale.ENGLISH)))
                     event.setCanceled(true);
             }
 
             for (String primaryString : getSecondaryStrings()) {
-                if (s.contains(primaryString.toLowerCase(Locale.ENGLISH)))
+                if (unformattedText.contains(primaryString.toLowerCase(Locale.ENGLISH)))
                     event.setCanceled(true);
             }
-        } else if (AutoGG.instance.getAutoGGConfig().isAntiKarmaEnabled() && invoked) {
-            if (Pattern.compile("^\\+(?<karma>\\d)+ karma!$").matcher(s).matches()) {
-                event.setCanceled(true);
-            }
         }
-
-        String unformattedText = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
+        if (AutoGG.instance.getAutoGGConfig().isAntiKarmaEnabled() && MinecraftUtils.isHypixel() &&
+                Pattern.compile("^\\+(?<karma>\\d)+ Karma!$").matcher(unformattedText).matches()) {
+            event.setCanceled(true);
+        }
 
         if (!MinecraftUtils.isHypixel() || !AutoGG.instance.getAutoGGConfig().isAutoGGEnabled() || AutoGG.instance.isRunning() || AutoGG.instance.getTriggers().isEmpty()) {
             return;
         }
+
+
 
         for (String trigger : AutoGG.instance.getTriggers()) {
             if (unformattedText.contains(trigger) && unformattedText.startsWith(" ")) {
