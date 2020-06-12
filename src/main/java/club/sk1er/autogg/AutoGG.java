@@ -6,6 +6,7 @@ import club.sk1er.autogg.listener.AutoGGListener;
 import club.sk1er.modcore.ModCoreInstaller;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.mods.core.util.WebUtil;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import net.minecraft.client.Minecraft;
@@ -16,11 +17,12 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Mod(modid = "autogg", name = "AutoGG", version = "3.3")
 public class AutoGG {
-
-    private final List<String> triggers = new ArrayList<>();
+    private final static List<Pattern> triggers = new ArrayList<>();
+    private final static List<Pattern> casualTriggers = new ArrayList<>();
     private AutoGGConfig autoGGConfig;
     private boolean running;
 
@@ -37,22 +39,28 @@ public class AutoGG {
         running = false;
 
         ClientCommandHandler.instance.registerCommand(new AutoGGCommand());
-        Multithreading.runAsync(() -> {
-            try {
-                for (JsonElement element : new JsonParser().parse(WebUtil.fetchString("http://static.sk1er.club/autogg/triggers.json")).getAsJsonArray()) {
-                    triggers.add(element.getAsString());
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+        MinecraftForge.EVENT_BUS.register(new AutoGGListener());
+
+        fetchTriggers();
+    }
+
+    public static void fetchTriggers() {
+        triggers.clear();
+        casualTriggers.clear();
+        Multithreading.runAsync(() -> { // change the url once you have the json on static.sk1er.club \/ \/ \/
+            JsonArray downloadedTriggers = new JsonParser().parse(WebUtil.fetchString("https://raw.githubusercontent.com/SirNapkin1334/sirnapkin1334.github.io/master/file/regex_triggers.json")).getAsJsonArray();
+            for (JsonElement element : downloadedTriggers.get(0).getAsJsonArray()) {
+                triggers.add(Pattern.compile(element.getAsString()));
+            }
+            for (JsonElement element : downloadedTriggers.get(1).getAsJsonArray()) {
+                casualTriggers.add(Pattern.compile(element.getAsString()));
             }
         });
-
-        MinecraftForge.EVENT_BUS.register(new AutoGGListener());
     }
 
-    public List<String> getTriggers() {
-        return triggers;
-    }
+    public List<Pattern> getTriggers() { return triggers; }
+
+    public List<Pattern> getCasualTriggers() { return casualTriggers; }
 
     public boolean isRunning() {
         return running;

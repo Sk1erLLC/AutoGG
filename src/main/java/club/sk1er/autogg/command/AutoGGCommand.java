@@ -37,12 +37,15 @@ public class AutoGGCommand extends CommandBase {
         if (args.length == 0) {
             ModCore.getInstance().getGuiHandler().open(AutoGG.instance.getAutoGGConfig().gui());
         } else {
-            MinecraftUtils.sendMessage(EnumChatFormatting.RED + "AutoGG has no arguments. Usage: /autogg");
+            if (args[0].equals("refresh")) {
+                AutoGG.fetchTriggers();
+                MinecraftUtils.sendMessage(EnumChatFormatting.GREEN + "Fetched triggers!");
+            } else {
+                MinecraftUtils.sendMessage(EnumChatFormatting.GREEN + "For support with the AutoGG Mod, go to https://discord.gg/sk1er\n" + EnumChatFormatting.GREEN + "To refresh triggers, run /autogg refresh\n" + EnumChatFormatting.GREEN + "To configure the mod, run /autogg");
+            }
         }
     }
 
     @Override
-    public int getRequiredPermissionLevel() {
-        return -1;
-    }
+    public int getRequiredPermissionLevel() { return -1; }
 }
