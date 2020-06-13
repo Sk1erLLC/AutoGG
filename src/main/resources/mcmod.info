@@ -9,9 +9,10 @@
     "updateUrl": "",
     "authorList": [
       "2Pi",
-      "Sk1er LLC"
+      "Sk1er LLC",
+      "SirNapkin1334"
     ],
-    "credits": "Created by 2PI, maintained and updated by Sk1er LLC",
+    "credits": "Created by 2PI, maintained and updated by Sk1er LLC. Regex update created by SirNapkin1334.",
     "logoFile": "",
     "screenshots": [],
     "dependencies": []

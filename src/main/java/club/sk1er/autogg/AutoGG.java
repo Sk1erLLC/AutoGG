@@ -62,15 +62,9 @@ public class AutoGG {
 
     public List<Pattern> getCasualTriggers() { return casualTriggers; }
 
-    public boolean isRunning() {
-        return running;
-    }
+    public boolean isRunning() { return running; }
 
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
+    public void setRunning(boolean running) { this.running = running; }
 
-    public AutoGGConfig getAutoGGConfig() {
-        return autoGGConfig;
-    }
+    public AutoGGConfig getAutoGGConfig() { return autoGGConfig; }
 }
