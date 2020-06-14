@@ -48,28 +48,35 @@ public class AutoGGListener {
         String unformattedText = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
         if (AutoGG.instance.getAutoGGConfig().isAntiGGEnabled() && invoked) {
             for (String primaryString : getPrimaryStrings()) {
-                if (unformattedText.toLowerCase(Locale.ENGLISH).contains(primaryString.toLowerCase(Locale.ENGLISH)))
+                if (unformattedText.toLowerCase(Locale.ENGLISH).contains(primaryString.toLowerCase(Locale.ENGLISH))) {
                     event.setCanceled(true);
+                    return; // don't waste time checking more stuff
+                }
             }
 
             for (String primaryString : getSecondaryStrings()) {
-                if (unformattedText.toLowerCase(Locale.ENGLISH).contains(primaryString.toLowerCase(Locale.ENGLISH)))
+                if (unformattedText.toLowerCase(Locale.ENGLISH).contains(primaryString.toLowerCase(Locale.ENGLISH))) {
                     event.setCanceled(true);
+                    return;
+                }
             }
         }
         if (AutoGG.instance.getAutoGGConfig().isAntiKarmaEnabled() && karmaPattern.matcher(unformattedText).matches()) {
             event.setCanceled(true);
+            return;
         }
 
-        if (!AutoGG.instance.getAutoGGConfig().isAutoGGEnabled() ||
-                AutoGG.instance.isRunning() || AutoGG.instance.getTriggers().isEmpty()) {
+        if (!AutoGG.instance.getAutoGGConfig().isAutoGGEnabled() || AutoGG.instance.isRunning() ||
+                AutoGG.instance.getTriggers().isEmpty()) {
             return;
         }
 
         for (Pattern trigger : AutoGG.instance.getTriggers()) {
             if (trigger.matcher(unformattedText).matches()) {
-                if (holeInTheBlock) holeInTheBlock = false; // so that it doesn't execute the first time; only the second
-                else { //                                      i can't decide if this solution is really good or really bad
+                if (holeInTheBlock) {
+                    holeInTheBlock = false; // so that it doesn't execute the first time, only the second
+                    return; //                 i can't decide if this solution is really good or really bad
+                } else {
                     AutoGG.instance.setRunning(true);
                     invoked = true;
                     Multithreading.schedule(() -> {

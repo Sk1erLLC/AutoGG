@@ -11,6 +11,8 @@ import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.ChatComponentText;
 
+import java.util.regex.Pattern;
+
 public class AutoGGCommand extends CommandBase {
     /**
      * Gets the name of the command
@@ -64,6 +66,7 @@ public class AutoGGCommand extends CommandBase {
             }
         }
     }
+
 
     @Override
     public int getRequiredPermissionLevel() { return -1; }
