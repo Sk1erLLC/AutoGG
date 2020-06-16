@@ -21,12 +21,11 @@ public class AutoGGListener {
 
     private boolean invoked;
 
-    public boolean holeInTheBlock = false; // YES I KNOW IT'S CALLED HOLE IN THE WALL BUT I SWEAR THAT I REMEMBER IT USED TO BE CALLED HOLE IN THE BLOCK OR SOMETHING AND THIS IS MY VARIABLE; I CAN NAME HIM AS I PLEASE AND YES THIS VARIABLE IS MALE AS DECLARED BY ME
+    private boolean holeInTheBlock = false; // YES I KNOW IT'S CALLED HOLE IN THE WALL BUT I SWEAR THAT I REMEMBER IT USED TO BE CALLED HOLE IN THE BLOCK OR SOMETHING AND THIS IS MY VARIABLE; I CAN NAME HIM AS I PLEASE AND YES THIS VARIABLE IS MALE AS DECLARED BY ME
 
     @SubscribeEvent
     public void worldSwap(WorldEvent.Unload event) {
         invoked = false;
-        holeInTheBlock = false;
     }
 
     @SubscribeEvent
@@ -66,41 +65,6 @@ public class AutoGGListener {
             return;
         }
 
-        if (!AutoGG.instance.getAutoGGConfig().isAutoGGEnabled() || AutoGG.instance.isRunning() ||
-                AutoGG.instance.getTriggers().isEmpty()) {
-            return;
-        }
-
-        for (Pattern trigger : AutoGG.instance.getTriggers()) {
-            if (trigger.matcher(unformattedText).matches()) {
-                if (holeInTheBlock) {
-                    holeInTheBlock = false; // so that it doesn't execute the first time, only the second
-                    return; //                 i can't decide if this solution is really good or really bad
-                } else {
-                    AutoGG.instance.setRunning(true);
-                    invoked = true;
-                    Multithreading.schedule(() -> {
-                        try {
-                            Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                                    "/achat " + (getPrimaryString())
-                            );
-                            if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled()) {
-                                Multithreading.schedule(() -> {
-                                    Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                                            "/achat " + (getSecondString())
-                                    );
-                                    end();
-                                }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay(), TimeUnit.MILLISECONDS);
-                                return;
-                            }
-                            end();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay(), TimeUnit.MILLISECONDS);
-                }
-            }
-        }
         if (AutoGG.instance.getAutoGGConfig().isCasualAutoGGEnabled()) {
             for (Pattern trigger : AutoGG.instance.getCasualTriggers()) {
                 if (trigger.matcher(unformattedText).matches()) {
@@ -114,6 +78,41 @@ public class AutoGGListener {
                             e.printStackTrace();
                         }
                     }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay(), TimeUnit.MILLISECONDS);
+                    return;
+                }
+            }
+        }
+
+        if (AutoGG.instance.getAutoGGConfig().isAutoGGEnabled() && !AutoGG.instance.isRunning() &&
+                !AutoGG.instance.getTriggers().isEmpty()) {
+            for (Pattern trigger : AutoGG.instance.getTriggers()) {
+                if (trigger.matcher(unformattedText).matches()) {
+                    if (holeInTheBlock) {
+                        holeInTheBlock = false; // so that it doesn't execute the first time, only the second
+                        return; //                 i can't decide if this solution is really good or really bad
+                    } else {
+                        AutoGG.instance.setRunning(true);
+                        invoked = true;
+                        Multithreading.schedule(() -> {
+                            try {
+                                Minecraft.getMinecraft().thePlayer.sendChatMessage(
+                                        "/achat " + (getPrimaryString())
+                                );
+                                if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled()) {
+                                    Multithreading.schedule(() -> {
+                                        Minecraft.getMinecraft().thePlayer.sendChatMessage(
+                                                "/achat " + (getSecondString())
+                                        );
+                                        end();
+                                    }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay(), TimeUnit.MILLISECONDS);
+                                    return;
+                                }
+                                end();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay(), TimeUnit.MILLISECONDS);
+                    }
                 }
             }
         }
@@ -163,10 +162,9 @@ public class AutoGGListener {
     private String getSecondString() {
         int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase2();
         String[] primaryStrings = getSecondaryStrings();
-        if (autoGGPhrase > 0 && autoGGPhrase < primaryStrings.length) {
+        if (autoGGPhrase >= 0 && autoGGPhrase < primaryStrings.length) {
             return primaryStrings[autoGGPhrase];
         }
-
         return "gg";
     }
 }

@@ -94,15 +94,21 @@ public class AutoGGConfig extends Vigilant {
     )
     private int secondaryDelay = 1000;
 
-    public boolean isAutoGGEnabled() { return autoGGEnabled && MinecraftUtils.isHypixel(); }
+    public boolean isAutoGGEnabled() { return autoGGEnabled
+//            && MinecraftUtils.isHypixel()
+            ; }
 
-    public boolean isCasualAutoGGEnabled() { return casualAutoGGEnabled && MinecraftUtils.isHypixel(); }
+    public boolean isCasualAutoGGEnabled() { return casualAutoGGEnabled
+//            && MinecraftUtils.isHypixel()
+            ; }
 
-    public boolean isAntiGGEnabled() {
-        return antiGGEnabled && MinecraftUtils.isHypixel();
-    }
+    public boolean isAntiGGEnabled() { return antiGGEnabled
+//            && MinecraftUtils.isHypixel()
+            ; }
 
-    public boolean isAntiKarmaEnabled() { return antiKarmaEnabled && MinecraftUtils.isHypixel(); }
+    public boolean isAntiKarmaEnabled() { return antiKarmaEnabled
+//            && MinecraftUtils.isHypixel()
+            ; }
 
     public int getAutoGGDelay() {
         return autoGGDelay;
