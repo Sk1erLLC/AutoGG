@@ -18,9 +18,7 @@ public class AutoGGCommand extends CommandBase {
      * Gets the name of the command
      */
     @Override
-    public String getCommandName() {
-        return "autogg";
-    }
+    public String getCommandName() { return "autogg"; }
 
     /**
      * Gets the usage string for the command.
@@ -28,9 +26,7 @@ public class AutoGGCommand extends CommandBase {
      * @param sender user the command is being sent from
      */
     @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "/" + getCommandName();
-    }
+    public String getCommandUsage(ICommandSender sender) { return "/" + getCommandName(); }
 
     /**
      * Callback when the command is invoked
@@ -46,7 +42,7 @@ public class AutoGGCommand extends CommandBase {
             switch (args[0]) {
                 case "refresh":
                     AutoGG.fetchTriggers();
-                    MinecraftUtils.sendMessage(ChatColor.GREEN + "Fetched triggers!");
+                    Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(ChatColor.GREEN + "Fetched triggers!"));
                     break;
                 case "triggers": // print triggers
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText("\n" + ChatColor.AQUA + "TRIGGERS:\n\n"));
