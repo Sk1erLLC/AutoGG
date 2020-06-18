@@ -102,25 +102,15 @@ public class AutoGGConfig extends Vigilant {
 
     public boolean isAntiKarmaEnabled() { return antiKarmaEnabled && MinecraftUtils.isHypixel(); }
 
-    public int getAutoGGDelay() {
-        return autoGGDelay;
-    }
+    public int getAutoGGDelay() { return autoGGDelay; }
 
-    public int getAutoGGPhrase() {
-        return autoGGPhrase;
-    }
+    public int getAutoGGPhrase() { return autoGGPhrase; }
 
-    public boolean isSecondaryEnabled() {
-        return secondaryEnabled;
-    }
+    public boolean isSecondaryEnabled() { return secondaryEnabled; }
 
-    public int getAutoGGPhrase2() {
-        return autoGGPhrase2;
-    }
+    public int getAutoGGPhrase2() { return autoGGPhrase2; }
 
-    public int getSecondaryDelay() {
-        return secondaryDelay;
-    }
+    public int getSecondaryDelay() { return secondaryDelay; }
 
     public AutoGGConfig() {
         super(new File("./config/autogg.toml"));

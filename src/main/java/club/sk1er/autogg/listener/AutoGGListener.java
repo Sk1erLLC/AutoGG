@@ -137,7 +137,7 @@ public class AutoGGListener {
             return primaryStrings[autoGGPhrase];
         }
 
-        return "gg";
+        return "gg"; // if there's some sort of config error
     }
 
     private String[] getPrimaryStrings() {
