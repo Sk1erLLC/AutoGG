@@ -3,7 +3,6 @@ package club.sk1er.autogg.command;
 import club.sk1er.autogg.AutoGG;
 import club.sk1er.mods.core.ModCore;
 import club.sk1er.mods.core.universal.ChatColor;
-import club.sk1er.mods.core.util.MinecraftUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -62,6 +61,7 @@ public class AutoGGCommand extends CommandBase {
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText(ChatColor.GREEN + Integer.toString(AutoGG.instance.getTriggers().size())
                             + " Triggers, " + AutoGG.instance.getCasualTriggers().size() + " Casual Triggers"));
                     break;
+
                 default: // thank you asbyth!
                     ChatComponentText discordLink = new ChatComponentText(ChatColor.GREEN + "For support with AutoGG, go to discord.gg/sk1er.");
                     discordLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/sk1er"));

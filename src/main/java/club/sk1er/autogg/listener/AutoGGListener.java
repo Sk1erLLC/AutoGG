@@ -6,6 +6,7 @@ import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.vigilance.data.Property;
 import net.minecraft.client.Minecraft;
 import net.minecraft.scoreboard.Scoreboard;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -21,25 +22,25 @@ public class AutoGGListener {
 
     private boolean invoked;
 
-    private boolean holeInTheBlock = false; // YES I KNOW IT'S CALLED HOLE IN THE WALL BUT I SWEAR THAT I REMEMBER IT USED TO BE CALLED HOLE IN THE BLOCK OR SOMETHING AND THIS IS MY VARIABLE; I CAN NAME HIM AS I PLEASE AND YES THIS VARIABLE IS MALE AS DECLARED BY ME
+    private boolean holeInTheBlock = false;
+
 
     @SubscribeEvent
-    public void worldSwap(WorldEvent.Unload event) {
-        invoked = false;
-    }
+    public void worldSwap(WorldEvent.Unload event) { invoked = false; }
 
     @SubscribeEvent
     public void holeInTheBlockThing(WorldEvent.Load event) {
         Multithreading.schedule(() -> {
             Scoreboard scoreboard;
             try { scoreboard = event.world.getScoreboard(); }
-            catch (Exception e) { holeInTheBlock = false; return; }
+            catch (Exception e) { holeInTheBlock = false; end(); return; }
             if (scoreboard != null) {
                 holeInTheBlock = EnumChatFormatting.getTextWithoutFormattingCodes(
                         scoreboard.getObjectiveInDisplaySlot(1).getDisplayName()
                 ).equals("HOLE IN THE WALL");
             } else holeInTheBlock = false;
-        }, 1000, TimeUnit.MILLISECONDS);
+            end();
+        }, 300, TimeUnit.MILLISECONDS);
     }
 
     @SubscribeEvent
@@ -68,8 +69,7 @@ public class AutoGGListener {
         if (AutoGG.instance.getAutoGGConfig().isCasualAutoGGEnabled()) {
             for (Pattern trigger : AutoGG.instance.getCasualTriggers()) {
                 if (trigger.matcher(unformattedText).matches()) {
-                    AutoGG.instance.setRunning(true);
-                    invoked = true;
+                    invoked = true; // invoked for antigg, but not setRunning because we want to be able to say gg again
                     Multithreading.schedule(() -> {
                         try {
                             Minecraft.getMinecraft().thePlayer.sendChatMessage("/achat " + getPrimaryString());
@@ -77,14 +77,14 @@ public class AutoGGListener {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        end();
                     }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay(), TimeUnit.MILLISECONDS);
                     return;
                 }
             }
         }
 
-        if (AutoGG.instance.getAutoGGConfig().isAutoGGEnabled() && !AutoGG.instance.isRunning() &&
-                !AutoGG.instance.getTriggers().isEmpty()) {
+        if (AutoGG.instance.getAutoGGConfig().isAutoGGEnabled() && !AutoGG.instance.isRunning()) {
             for (Pattern trigger : AutoGG.instance.getTriggers()) {
                 if (trigger.matcher(unformattedText).matches()) {
                     if (holeInTheBlock) {
@@ -100,12 +100,15 @@ public class AutoGGListener {
                                 );
                                 if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled()) {
                                     Multithreading.schedule(() -> {
-                                        Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                                                "/achat " + (getSecondString())
-                                        );
+                                        try {
+                                            Minecraft.getMinecraft().thePlayer.sendChatMessage(
+                                                    "/achat " + (getSecondString())
+                                            );
+                                        } catch (RuntimeException ignored) {
+                                            Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText("An error occurred getting second string."));
+                                        } // if invalid config
                                         end();
                                     }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay(), TimeUnit.MILLISECONDS);
-                                    return;
                                 }
                                 end();
                             } catch (Exception e) {
@@ -159,12 +162,13 @@ public class AutoGGListener {
         return new String[0];
     }
 
-    private String getSecondString() {
+    private String getSecondString() throws RuntimeException {
         int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase2();
         String[] primaryStrings = getSecondaryStrings();
         if (autoGGPhrase >= 0 && autoGGPhrase < primaryStrings.length) {
             return primaryStrings[autoGGPhrase];
         }
-        return "gg";
+
+        throw new RuntimeException("An unknown error occurred parsing config. Try deleting .minecraft/config/autogg.toml or contacting the mod authors.");
     }
 }
