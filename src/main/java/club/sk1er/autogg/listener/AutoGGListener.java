@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -23,6 +24,7 @@ public class AutoGGListener {
     private boolean invoked;
 
     private boolean holeInTheBlock = false;
+    private boolean pixelPainters = false;
 
 
     @SubscribeEvent
@@ -31,16 +33,16 @@ public class AutoGGListener {
     @SubscribeEvent
     public void holeInTheBlockThing(WorldEvent.Load event) {
         Multithreading.schedule(() -> {
-            Scoreboard scoreboard;
-            try { scoreboard = event.world.getScoreboard(); }
-            catch (Exception e) { holeInTheBlock = false; end(); return; }
-            if (scoreboard != null) {
-                holeInTheBlock = EnumChatFormatting.getTextWithoutFormattingCodes(
-                        scoreboard.getObjectiveInDisplaySlot(1).getDisplayName()
-                ).equals("HOLE IN THE WALL");
-            } else holeInTheBlock = false;
-            end();
-        }, 300, TimeUnit.MILLISECONDS);
+            String scoreboardTitle;
+            try {
+                scoreboardTitle = EnumChatFormatting.getTextWithoutFormattingCodes(
+                    event.world.getScoreboard().getObjectiveInDisplaySlot(1).getDisplayName()
+                );
+            } catch (Exception e) { end(); return; }
+            holeInTheBlock = "HOLE IN THE WALL".equals(scoreboardTitle);
+            pixelPainters = "PIXEL PAINTERS".equals(scoreboardTitle);
+            end(); // i feel a little bad hardcoding support for these games, but what else am I gonna do, eval code from the endpoint?
+        }, 300, TimeUnit.MILLISECONDS); // any less delay and it just doesn't work
     }
 
     @SubscribeEvent
@@ -66,59 +68,66 @@ public class AutoGGListener {
             return;
         }
 
-        if (AutoGG.instance.getAutoGGConfig().isCasualAutoGGEnabled()) {
-            for (Pattern trigger : AutoGG.instance.getCasualTriggers()) {
-                if (trigger.matcher(unformattedText).matches()) {
-                    invoked = true; // invoked for antigg, but not setRunning because we want to be able to say gg again
-                    Multithreading.schedule(() -> {
-                        try {
-                            Minecraft.getMinecraft().thePlayer.sendChatMessage("/achat " + getPrimaryString());
-                            end(); // we're not gonna print secondary strings for "casual" things
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        end();
-                    }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay(), TimeUnit.MILLISECONDS);
-                    return;
-                }
-            }
-        }
-
-        if (AutoGG.instance.getAutoGGConfig().isAutoGGEnabled() && !AutoGG.instance.isRunning()) {
-            for (Pattern trigger : AutoGG.instance.getTriggers()) {
-                if (trigger.matcher(unformattedText).matches()) {
-                    if (holeInTheBlock) {
-                        holeInTheBlock = false; // so that it doesn't execute the first time, only the second
-                        return; //                 i can't decide if this solution is really good or really bad
-                    } else {
+        if (!AutoGG.instance.isRunning()) {
+            if (AutoGG.instance.getAutoGGConfig().isCasualAutoGGEnabled()) {
+                for (Pattern trigger : AutoGG.instance.getCasualTriggers()) {
+                    if (trigger.matcher(unformattedText).matches()) {
                         AutoGG.instance.setRunning(true);
                         invoked = true;
+                        sayGG(false, 0);
+                        AutoGG.instance.setRunning(false);
                         Multithreading.schedule(() -> {
-                            try {
-                                Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                                        "/achat " + (getPrimaryString())
-                                );
-                                if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled()) {
-                                    Multithreading.schedule(() -> {
-                                        try {
-                                            Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                                                    "/achat " + (getSecondString())
-                                            );
-                                        } catch (RuntimeException ignored) {
-                                            Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText("An error occurred getting second string."));
-                                        } // if invalid config
-                                        end();
-                                    }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay(), TimeUnit.MILLISECONDS);
-                                }
-                                end();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay(), TimeUnit.MILLISECONDS);
+                            invoked = false; // stop blocking ggs after 60 seconds (perhaps this number should be changed)
+                            end();
+                        }, 60, TimeUnit.SECONDS);
+                    }
+                }
+            }
+
+            if (AutoGG.instance.getAutoGGConfig().isAutoGGEnabled()) {
+                for (Pattern trigger : AutoGG.instance.getTriggers()) {
+                    if (trigger.matcher(unformattedText).matches()) {
+                        int addedTime = 0;
+                        if (holeInTheBlock) {
+                            holeInTheBlock = false; // so that it doesn't execute the first time, only the second
+                            return; //                 i can't decide if this solution is really good or really bad
+                        } else if (pixelPainters) { // i just want to say again, *fuck* this game.
+                            addedTime = 240; //        hey those last two coincidentally lined up!
+                        }
+                        AutoGG.instance.setRunning(true);
+                        invoked = true;
+                        sayGG(true, addedTime);
                     }
                 }
             }
         }
+    }
+
+    private void sayGG(boolean doSecond, int addedTime) {
+        Multithreading.schedule(() -> {
+            try {
+                Minecraft.getMinecraft().thePlayer.sendChatMessage(
+                        "/achat " + (getPrimaryString())
+                );
+                if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled() && doSecond) {
+                    Multithreading.schedule(() -> {
+                        try {
+                            Minecraft.getMinecraft().thePlayer.sendChatMessage(
+                                    "/achat " + (getSecondString())
+                            );
+                        } catch (RuntimeException ignored) { // if invalid config
+                            Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText("An error occurred getting second string."));
+                        } finally {
+                            end();
+                        }
+                    }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay() + 1, TimeUnit.MILLISECONDS); // +1 because sometimes the second message is sent first because Java™
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                end();
+            }
+        }, AutoGG.instance.getAutoGGConfig().getAutoGGDelay() + addedTime, TimeUnit.MILLISECONDS);
     }
 
     private void end() {
@@ -137,7 +146,7 @@ public class AutoGGListener {
             return primaryStrings[autoGGPhrase];
         }
 
-        return "gg"; // if there's some sort of config error
+        return "gg";
     }
 
     private String[] getPrimaryStrings() {
