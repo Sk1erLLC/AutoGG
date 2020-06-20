@@ -2,13 +2,12 @@ package club.sk1er.autogg.listener;
 
 import club.sk1er.autogg.AutoGG;
 import club.sk1er.autogg.config.AutoGGConfig;
+import club.sk1er.mods.core.universal.ChatColor;
+import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.vigilance.data.Property;
 import net.minecraft.client.Minecraft;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.world.World;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -27,21 +26,26 @@ public class AutoGGListener {
     private boolean useDelay;
 
     @SubscribeEvent
-    public void worldSwap(WorldEvent.Unload event) { invoked = false; }
+    public void worldSwap(WorldEvent.Unload event) {
+        invoked = false;
+    }
 
     @SubscribeEvent
     public void holeInTheBlockThing(WorldEvent.Load event) {
-        Multithreading.schedule(() -> { // thank god for modcore
+        Multithreading.schedule(() -> {
             String scoreboardTitle;
             try {
-                scoreboardTitle = EnumChatFormatting.getTextWithoutFormattingCodes(
-                    event.world.getScoreboard().getObjectiveInDisplaySlot(1).getDisplayName()
-                );
-            } catch (Exception e) { end(); return; } // don't flip those \/ btw, as that could cause a NPE
-            holeInTheBlock = "HOLE IN THE WALL".equals(scoreboardTitle); // thank you llama for helping me remember that
+                scoreboardTitle = EnumChatFormatting.getTextWithoutFormattingCodes(event.world.getScoreboard().getObjectiveInDisplaySlot(1).getDisplayName());
+            } catch (Exception e) {
+                end();
+                return;
+            }
+
+            holeInTheBlock = "HOLE IN THE WALL".equals(scoreboardTitle);
             useDelay = "PIXEL PAINTERS".equals(scoreboardTitle) || "SPEED UHC".equals(scoreboardTitle);
-            end(); // i feel a little bad hardcoding support for these games, but what else am I gonna do, eval code from the endpoint?
-        }, 300, TimeUnit.MILLISECONDS); // any less delay and it just doesn't work, guess world isn't sufficeintly loaded
+
+            end();
+        }, 300, TimeUnit.MILLISECONDS);
     }
 
     @SubscribeEvent
@@ -51,7 +55,7 @@ public class AutoGGListener {
             for (String primaryString : getPrimaryStrings()) {
                 if (unformattedText.toLowerCase(Locale.ENGLISH).contains(primaryString.toLowerCase(Locale.ENGLISH))) {
                     event.setCanceled(true);
-                    return; // don't waste time checking more stuff
+                    return;
                 }
             }
 
@@ -62,6 +66,7 @@ public class AutoGGListener {
                 }
             }
         }
+
         if (AutoGG.instance.getAutoGGConfig().isAntiKarmaEnabled() && karmaPattern.matcher(unformattedText).matches()) {
             event.setCanceled(true);
             return;
@@ -76,7 +81,7 @@ public class AutoGGListener {
                         sayGG(false, 0);
                         AutoGG.instance.setRunning(false);
                         Multithreading.schedule(() -> {
-                            invoked = false; // stop blocking ggs after 60 seconds (perhaps this number should be changed)
+                            invoked = false;
                             end();
                         }, 60, TimeUnit.SECONDS);
                         return;
@@ -88,8 +93,8 @@ public class AutoGGListener {
                 for (Pattern trigger : AutoGG.instance.getTriggers()) {
                     if (trigger.matcher(unformattedText).matches()) {
                         if (holeInTheBlock) {
-                            holeInTheBlock = false; // so that it doesn't execute the first time, only the second
-                            return; //                 i can't decide if this solution is really good or really bad
+                            holeInTheBlock = false;
+                            return;
                         }
                         AutoGG.instance.setRunning(true);
                         invoked = true;
@@ -104,23 +109,24 @@ public class AutoGGListener {
         Multithreading.schedule(() -> {
             try {
                 Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                        "/achat " + (getPrimaryString())
+                    "/achat " + (getPrimaryString())
                 );
                 if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled() && doSecond) {
                     Multithreading.schedule(() -> {
                         try {
                             Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                                    "/achat " + (getSecondString())
+                                "/achat " + (getSecondString())
                             );
-                        } catch (RuntimeException ignored) { // if invalid config
-                            Minecraft.getMinecraft().thePlayer.addChatComponentMessage(new ChatComponentText("An error occurred getting second string."));
+                        } catch (RuntimeException e) {
+                            MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(),ChatColor.RED + "An error occurred getting second string.");
+                            AutoGG.instance.getLogger().error("Failed to get second string.", e);
                         } finally {
                             end();
                         }
-                    }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay() + 10, TimeUnit.MILLISECONDS); // +10 because sometimes the second message is sent first because Java™
+                    }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay() + 10, TimeUnit.MILLISECONDS);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                AutoGG.instance.getLogger().error("Failed to send AutoGG messages.", e);
             } finally {
                 end();
             }

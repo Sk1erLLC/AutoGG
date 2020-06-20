@@ -1,9 +1,9 @@
 package club.sk1er.autogg.config;
 
+import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.vigilance.Vigilant;
 import club.sk1er.vigilance.data.Property;
 import club.sk1er.vigilance.data.PropertyType;
-import club.sk1er.mods.core.util.MinecraftUtils;
 
 import java.io.File;
 
@@ -94,23 +94,41 @@ public class AutoGGConfig extends Vigilant {
     )
     private int secondaryDelay = 1000;
 
-    public boolean isAutoGGEnabled() { return autoGGEnabled && MinecraftUtils.isHypixel(); }
+    public boolean isAutoGGEnabled() {
+        return autoGGEnabled && MinecraftUtils.isHypixel();
+    }
 
-    public boolean isCasualAutoGGEnabled() { return casualAutoGGEnabled && MinecraftUtils.isHypixel(); }
+    public boolean isCasualAutoGGEnabled() {
+        return casualAutoGGEnabled && MinecraftUtils.isHypixel();
+    }
 
-    public boolean isAntiGGEnabled() { return antiGGEnabled && MinecraftUtils.isHypixel(); }
+    public boolean isAntiGGEnabled() {
+        return antiGGEnabled && MinecraftUtils.isHypixel();
+    }
 
-    public boolean isAntiKarmaEnabled() { return antiKarmaEnabled && MinecraftUtils.isHypixel(); }
+    public boolean isAntiKarmaEnabled() {
+        return antiKarmaEnabled && MinecraftUtils.isHypixel();
+    }
 
-    public int getAutoGGDelay() { return autoGGDelay; }
+    public int getAutoGGDelay() {
+        return autoGGDelay;
+    }
 
-    public int getAutoGGPhrase() { return autoGGPhrase; }
+    public int getAutoGGPhrase() {
+        return autoGGPhrase;
+    }
 
-    public boolean isSecondaryEnabled() { return secondaryEnabled; }
+    public boolean isSecondaryEnabled() {
+        return secondaryEnabled;
+    }
 
-    public int getAutoGGPhrase2() { return autoGGPhrase2; }
+    public int getAutoGGPhrase2() {
+        return autoGGPhrase2;
+    }
 
-    public int getSecondaryDelay() { return secondaryDelay; }
+    public int getSecondaryDelay() {
+        return secondaryDelay;
+    }
 
     public AutoGGConfig() {
         super(new File("./config/autogg.toml"));
