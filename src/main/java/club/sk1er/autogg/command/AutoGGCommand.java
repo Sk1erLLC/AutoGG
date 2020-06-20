@@ -45,8 +45,8 @@ public class AutoGGCommand extends CommandBase {
         } else {
             switch (args[0]) {
                 case "refresh":
-                    AutoGG.fetchTriggers(true);
                     MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.YELLOW + "Fetching triggers...");
+                    AutoGG.fetchTriggers(true);
                     break;
                 case "triggers": // print triggers
                     MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), "\n" + ChatColor.AQUA + "TRIGGERS:\n\n");
