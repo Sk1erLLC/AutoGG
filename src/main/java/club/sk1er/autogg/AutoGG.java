@@ -94,7 +94,9 @@ public class AutoGG {
                 casualTriggers.add(Pattern.compile(element.getAsString()));
             }
 
-            MinecraftUtils.sendMessage(AutoGG.instance.prefix,ChatColor.GREEN + "Successfully fetched triggers!");
+            if (sendChatMsg) {
+                MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.GREEN + "Successfully fetched triggers!");
+            }
         });
     }
 
