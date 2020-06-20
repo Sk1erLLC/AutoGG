@@ -24,25 +24,24 @@ public class AutoGGListener {
     private boolean invoked;
 
     private boolean holeInTheBlock = false;
-    private boolean pixelPainters = false;
-
+    private boolean useDelay;
 
     @SubscribeEvent
     public void worldSwap(WorldEvent.Unload event) { invoked = false; }
 
     @SubscribeEvent
     public void holeInTheBlockThing(WorldEvent.Load event) {
-        Multithreading.schedule(() -> {
+        Multithreading.schedule(() -> { // thank god for modcore
             String scoreboardTitle;
             try {
                 scoreboardTitle = EnumChatFormatting.getTextWithoutFormattingCodes(
                     event.world.getScoreboard().getObjectiveInDisplaySlot(1).getDisplayName()
                 );
-            } catch (Exception e) { end(); return; }
-            holeInTheBlock = "HOLE IN THE WALL".equals(scoreboardTitle);
-            pixelPainters = "PIXEL PAINTERS".equals(scoreboardTitle);
+            } catch (Exception e) { end(); return; } // don't flip those \/ btw, as that could cause a NPE
+            holeInTheBlock = "HOLE IN THE WALL".equals(scoreboardTitle); // thank you llama for helping me remember that
+            useDelay = "PIXEL PAINTERS".equals(scoreboardTitle) || "SPEED UHC".equals(scoreboardTitle);
             end(); // i feel a little bad hardcoding support for these games, but what else am I gonna do, eval code from the endpoint?
-        }, 300, TimeUnit.MILLISECONDS); // any less delay and it just doesn't work
+        }, 300, TimeUnit.MILLISECONDS); // any less delay and it just doesn't work, guess world isn't sufficeintly loaded
     }
 
     @SubscribeEvent
@@ -80,6 +79,7 @@ public class AutoGGListener {
                             invoked = false; // stop blocking ggs after 60 seconds (perhaps this number should be changed)
                             end();
                         }, 60, TimeUnit.SECONDS);
+                        return;
                     }
                 }
             }
@@ -87,16 +87,13 @@ public class AutoGGListener {
             if (AutoGG.instance.getAutoGGConfig().isAutoGGEnabled()) {
                 for (Pattern trigger : AutoGG.instance.getTriggers()) {
                     if (trigger.matcher(unformattedText).matches()) {
-                        int addedTime = 0;
                         if (holeInTheBlock) {
                             holeInTheBlock = false; // so that it doesn't execute the first time, only the second
                             return; //                 i can't decide if this solution is really good or really bad
-                        } else if (pixelPainters) { // i just want to say again, *fuck* this game.
-                            addedTime = 240; //        hey those last two coincidentally lined up!
                         }
                         AutoGG.instance.setRunning(true);
                         invoked = true;
-                        sayGG(true, addedTime);
+                        sayGG(true, useDelay ? 240 : 0);
                     }
                 }
             }
@@ -120,7 +117,7 @@ public class AutoGGListener {
                         } finally {
                             end();
                         }
-                    }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay() + 1, TimeUnit.MILLISECONDS); // +1 because sometimes the second message is sent first because Java™
+                    }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay() + 10, TimeUnit.MILLISECONDS); // +10 because sometimes the second message is sent first because Java™
                 }
             } catch (Exception e) {
                 e.printStackTrace();
