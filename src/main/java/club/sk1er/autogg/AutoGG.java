@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 
 @Mod(modid = "autogg", name = "AutoGG", version = AutoGG.VERSION)
 public class AutoGG {
-    public static final String VERSION = "3.3";
+    public static final String VERSION = "3.4";
 
     private final static List<Pattern> triggers = new ArrayList<>();
     private final static List<Pattern> casualTriggers = new ArrayList<>();
@@ -67,7 +67,7 @@ public class AutoGG {
             JsonArray downloadedTriggers;
 
             try {
-                downloadedTriggers = new JsonParser().parse(fetchString("https://raw.githubusercontent.com/SirNapkin1334/sirnapkin1334.github.io/master/file/regex_triggers.json")).getAsJsonArray();
+                downloadedTriggers = new JsonParser().parse(fetchString("https://static.sk1er.club/autogg/regex_triggers.json")).getAsJsonArray();
             } catch (IOException e) {
                 if (sendChatMsg) {
                     MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED + "Unable to fetch triggers! Do you have an internet connection?");
