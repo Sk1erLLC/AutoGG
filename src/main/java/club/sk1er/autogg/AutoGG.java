@@ -142,6 +142,7 @@ public class AutoGG {
             }
         } catch (Exception e) {
             AutoGG.instance.logger.error("Failed to fetch string.", e);
+            throw new IOException("Failed to fetch triggers!");
         } finally {
             if (connection != null) {
                 connection.disconnect();
