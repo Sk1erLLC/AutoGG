@@ -29,7 +29,7 @@ public class AutoGGCommand extends CommandBase {
      */
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/" + getCommandName() + " <refresh|triggers|info|help>";
+        return "/" + getCommandName() + " [refresh|triggers|info|help]";
     }
 
     /**
@@ -86,7 +86,11 @@ public class AutoGGCommand extends CommandBase {
             }
         }
     }
-
+    
+    @Override
+    public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
+        return args.length == 1 ? getListOfStringsMatchingLastWord(args, "refresh", "triggers", "info", "help") : null;
+    }
 
     @Override
     public int getRequiredPermissionLevel() {
