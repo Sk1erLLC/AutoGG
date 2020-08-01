@@ -9,11 +9,16 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class AutoGGCommand extends CommandBase {
+
+    private final String prefix = AutoGG.instance.getPrefix();
+
     /**
      * Gets the name of the command
      */
@@ -45,11 +50,11 @@ public class AutoGGCommand extends CommandBase {
         } else {
             switch (args[0]) {
                 case "refresh":
-                    MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.YELLOW + "Fetching triggers...");
+                    MinecraftUtils.sendMessage(prefix, ChatColor.YELLOW + "Fetching triggers...");
                     AutoGG.fetchTriggers(true);
                     break;
                 case "triggers": // print triggers
-                    MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), "\n" + ChatColor.AQUA + "TRIGGERS:\n\n");
+                    MinecraftUtils.sendMessage(prefix, "\n" + ChatColor.AQUA + "TRIGGERS:\n\n");
 
                     for (Pattern pattern : AutoGG.instance.getTriggers()) {
                         MinecraftUtils.sendMessage("", pattern.toString());
@@ -63,25 +68,25 @@ public class AutoGGCommand extends CommandBase {
 
                     break;
                 case "info":
-                    MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.GREEN + "Mod Version: " + AutoGG.VERSION);
-                    MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.GREEN + "Triggers Version: " + AutoGG.instance.getTriggerData().get("version").toString().replaceAll("\"", ""));
-                    MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.GREEN + "Triggers last updated on " + AutoGG.instance.getTriggerData().get("date").toString().replaceAll("\"", ""));
-                    MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.GREEN + "Triggers info message: " + AutoGG.instance.getTriggerData().get("note").toString().replaceAll("\"", ""));
-                    MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.GREEN + Integer.toString(AutoGG.instance.getTriggers().size()) + " Triggers, " + AutoGG.instance.getCasualTriggers().size() + " Casual Triggers");
+                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN + "Mod Version: " + AutoGG.VERSION);
+                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN + "Triggers Version: " + AutoGG.instance.getTriggerData().get("version").toString().replaceAll("\"", ""));
+                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN + "Triggers last updated on " + AutoGG.instance.getTriggerData().get("date").toString().replaceAll("\"", ""));
+                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN + "Triggers info message: " + AutoGG.instance.getTriggerData().get("note").toString().replaceAll("\"", ""));
+                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN + Integer.toString(AutoGG.instance.getTriggers().size()) + " Triggers, " + AutoGG.instance.getCasualTriggers().size() + " Casual Triggers");
                     break;
 
                 default: // thank you asbyth!
-                    ChatComponentText discordLink = new ChatComponentText(AutoGG.instance.getPrefix() + ChatColor.GREEN + "For support with AutoGG, go to discord.gg/sk1er.");
+                    ChatComponentText discordLink = new ChatComponentText(prefix + ChatColor.GREEN + "For support with AutoGG, go to discord.gg/sk1er.");
                     discordLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://discord.gg/sk1er"));
                     discordLink.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Click to join our Discord.")));
 
-                    ChatComponentText autoGGConfig = new ChatComponentText(AutoGG.instance.getPrefix() + ChatColor.GREEN + "To configure AutoGG, run /autogg.");
+                    ChatComponentText autoGGConfig = new ChatComponentText(prefix + ChatColor.GREEN + "To configure AutoGG, run /autogg.");
                     autoGGConfig.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/autogg"));
                     autoGGConfig.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("Click to run /autogg.")));
 
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(discordLink);
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(autoGGConfig);
-                    MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.GREEN + "AutoGG Commands: refresh, triggers, info, help"); // help doesn't actually exist but that's our secret
+                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN + "AutoGG Commands: refresh, triggers, info, help"); // help doesn't actually exist but that's our secret
                     break;
             }
         }
