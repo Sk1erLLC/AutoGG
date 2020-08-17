@@ -14,7 +14,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -41,8 +40,6 @@ public class AutoGGListener {
 	@SubscribeEvent
 	public void holeInTheBlockThing(WorldEvent.Load event) {
 		Multithreading.schedule(() -> {
-			System.out.println(antiGGPrimaryPattern);
-			System.out.println(antiGGSecondaryPattern);
 			String scoreboardTitle;
 			try {
 				scoreboardTitle = EnumChatFormatting.getTextWithoutFormattingCodes(event.world.getScoreboard()
@@ -62,14 +59,14 @@ public class AutoGGListener {
 	@SubscribeEvent
 	public void onChat(ClientChatReceivedEvent event) {
 		String unformattedText = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
+		if (AutoGG.instance.getAutoGGConfig().isAntiKarmaEnabled() && karmaPattern.matcher(unformattedText).matches()) {
+			event.setCanceled(true);
+			return;
+		} // this goes first since it's a faster check
+
 		if ((AutoGG.instance.getAutoGGConfig().isAntiGGEnabled() && invoked) &&
 				(antiGGPrimaryPattern.matcher(unformattedText.toLowerCase()).matches() ||
 				antiGGSecondaryPattern.matcher(unformattedText.toLowerCase()).matches())) {
-			event.setCanceled(true);
-			return;
-		}
-
-		if (AutoGG.instance.getAutoGGConfig().isAntiKarmaEnabled() && karmaPattern.matcher(unformattedText).matches()) {
 			event.setCanceled(true);
 			return;
 		}
@@ -120,14 +117,18 @@ public class AutoGGListener {
 									"/achat " + (getSecondString())
 							);
 						} catch (RuntimeException e) {
-							MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(),ChatColor.RED +
-									"An error occurred getting second string.");
-							AutoGG.instance.getLogger().error("Failed to get second string.", e);
+							MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED +
+									"An error occurred getting secondary string. Check logs for more information.");
+							AutoGG.instance.getLogger().error("Failed to get secondary string.", e);
 						} finally {
 							end();
 						}
 					}, AutoGG.instance.getAutoGGConfig().getSecondaryDelay() + 10, TimeUnit.MILLISECONDS);
 				}
+			} catch (RuntimeException e) {
+				MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED +
+					"An error occurred getting primary string. Check logs for more information.");
+				AutoGG.instance.getLogger().error("Failed to get primary string.", e);
 			} catch (Exception e) {
 				AutoGG.instance.getLogger().error("Failed to send AutoGG messages.", e);
 			} finally {
@@ -145,16 +146,6 @@ public class AutoGGListener {
 		AutoGG.instance.setRunning(false);
 	}
 
-	private String getPrimaryString() {
-		int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase();
-		String[] primaryStrings = getPrimaryStrings(false);
-		if (autoGGPhrase > 0 && autoGGPhrase < primaryStrings.length) {
-			return primaryStrings[autoGGPhrase];
-		}
-
-		return "gg";
-	}
-
 	private static String[] getPrimaryStrings(boolean lower) { // can be static because the Strings never change, only selected one
 		try {
 			Property autoGGPhrase = AutoGGConfig.class.getDeclaredField("autoGGPhrase").getAnnotation(Property.class);
@@ -163,11 +154,22 @@ public class AutoGGListener {
 				options.add(lower ? option.toLowerCase() : option);
 			}
 			return options.toArray(new String[0]);
-		} catch (NoSuchFieldException e) {
+		} catch (NoSuchFieldException e) { // this should never happen
 			e.printStackTrace();
 		}
 
-		return new String[0];
+		return new String[0]; // in case of the above
+	}
+
+	private String getPrimaryString() throws RuntimeException {
+		int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase();
+		String[] primaryStrings = getPrimaryStrings(false);
+		if (autoGGPhrase > 0 && autoGGPhrase < primaryStrings.length) {
+			return primaryStrings[autoGGPhrase];
+		} else { // invalid config
+			throw new RuntimeException("An unknown error occurred parsing config. Try deleting " +
+					".minecraft/config/autogg.toml or contacting the mod authors.");
+		}
 	}
 
 	private static String[] getSecondaryStrings(boolean lower) { // see above
@@ -178,11 +180,11 @@ public class AutoGGListener {
 				options.add(lower ? option.toLowerCase() : option);
 			}
 			return options.toArray(new String[0]);
-		} catch (NoSuchFieldException e) {
+		} catch (NoSuchFieldException e) { // this should never happen
 			e.printStackTrace();
 		}
 
-		return new String[0];
+		return new String[0]; // in case of the above
 	}
 
 	private String getSecondString() throws RuntimeException {
@@ -190,9 +192,9 @@ public class AutoGGListener {
 		String[] primaryStrings = getSecondaryStrings(false);
 		if (autoGGPhrase >= 0 && autoGGPhrase < primaryStrings.length) {
 			return primaryStrings[autoGGPhrase];
+		} else { // invalid config
+			throw new RuntimeException("An unknown error occurred parsing config. Try deleting " +
+					".minecraft/config/autogg.toml or contacting the mod authors.");
 		}
-
-		throw new RuntimeException("An unknown error occurred parsing config. Try deleting " +
-				".minecraft/config/autogg.toml or contacting the mod authors.");
 	}
 }

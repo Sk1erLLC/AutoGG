@@ -126,7 +126,7 @@ public class AutoGG {
 
     public static String fetchString(String url) throws IOException {
         HttpURLConnection connection = null;
-        String s = "";
+        String s;
 
         try {
             connection = (HttpURLConnection) new URL(url.replace(" ", "%20")).openConnection();
