@@ -2,7 +2,7 @@
   {
     "modid": "autogg",
     "name": "AutoGG",
-    "description": "AutoGG automatically says \"gg\" after a game has ended on Hypixel.",
+    "description": "AutoGG automatically says a selectable phrase after a game has ended on certain servers.",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "https://sk1er.club/",

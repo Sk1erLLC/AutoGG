@@ -1,6 +1,6 @@
 package club.sk1er.autogg.config;
 
-import club.sk1er.mods.core.util.MinecraftUtils;
+import club.sk1er.autogg.AutoGG;
 import club.sk1er.vigilance.Vigilant;
 import club.sk1er.vigilance.data.Property;
 import club.sk1er.vigilance.data.PropertyType;
@@ -25,7 +25,7 @@ public class AutoGGConfig extends Vigilant {
         subcategory = "General",
         description = "Enable AutoGG for things that don't give Karma such as Skyblock Events."
     )
-    private boolean casualAutoGGEnabled = false;
+    private boolean casualAutoGGEnabled;
 
     @Property(
         type = PropertyType.SWITCH,
@@ -34,7 +34,7 @@ public class AutoGGConfig extends Vigilant {
         subcategory = "Miscellaneous",
         description = "Remove gg's from chat."
     )
-    private boolean antiGGEnabled = false;
+    private boolean antiGGEnabled;
 
     @Property(
         type = PropertyType.SWITCH,
@@ -43,7 +43,7 @@ public class AutoGGConfig extends Vigilant {
         subcategory = "Miscellaneous",
         description = "Remove Karma messages from chat."
     )
-    private boolean antiKarmaEnabled = false;
+    private boolean antiKarmaEnabled;
 
     @Property(
         type = PropertyType.SLIDER,
@@ -72,7 +72,7 @@ public class AutoGGConfig extends Vigilant {
         subcategory = "Secondary Message",
         description = "Enable a secondary message following your first GG"
     )
-    private boolean secondaryEnabled = false;
+    private boolean secondaryEnabled;
 
     @Property(
         type = PropertyType.SELECTOR,
@@ -95,19 +95,19 @@ public class AutoGGConfig extends Vigilant {
     private int secondaryDelay = 1000;
 
     public boolean isAutoGGEnabled() {
-        return autoGGEnabled && MinecraftUtils.isHypixel();
+        return autoGGEnabled && AutoGG.instance.works();
     }
 
     public boolean isCasualAutoGGEnabled() {
-        return casualAutoGGEnabled && MinecraftUtils.isHypixel();
+        return casualAutoGGEnabled && AutoGG.instance.works();
     }
 
     public boolean isAntiGGEnabled() {
-        return antiGGEnabled && MinecraftUtils.isHypixel();
+        return antiGGEnabled && AutoGG.instance.works();
     }
 
     public boolean isAntiKarmaEnabled() {
-        return antiKarmaEnabled && MinecraftUtils.isHypixel();
+        return antiKarmaEnabled && AutoGG.instance.works();
     }
 
     public int getAutoGGDelay() {
