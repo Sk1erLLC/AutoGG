@@ -54,8 +54,7 @@ public class AutoGGListener {
             try { // sometimes this throws an NPE
                 mineplex = mineplexPattern.matcher(Minecraft.getMinecraft().getCurrentServerData().serverIP).matches();
             } catch (Exception e) {
-                AutoGG.instance.getLogger().error("Failed getting server IP.", e);
-                e.printStackTrace();
+                AutoGG.instance.getLogger().warn("Failed getting server IP.");
                 mineplex = false;
             }
             String scoreboardTitle;
@@ -146,7 +145,7 @@ public class AutoGGListener {
                         } finally {
                             end();
                         }
-                    }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay() + 10 + (mineplex ? 390 : 0), TimeUnit.MILLISECONDS);
+                    }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay() + 10 + (mineplex ? 590 : 0), TimeUnit.MILLISECONDS);
                 }
             } catch (RuntimeException e) {
                 MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED +

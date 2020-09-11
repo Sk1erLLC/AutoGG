@@ -98,7 +98,7 @@ public class AutoGG {
                     "http://static.sk1er.club/autogg/regex_triggers_new.json")
                 ).getAsJsonObject();
 
-                assert Arrays.asList(ACCEPTED_CONFIG_VERSIONS).contains(triggerJson.get("config_version").toString());
+                assert Arrays.asList(ACCEPTED_CONFIG_VERSIONS).contains(triggerJson.get("triggers_format").toString());
 
                 // black magic; https://stackoverflow.com/a/21720953
                 triggerMeta = new Gson().fromJson(triggerJson.get("meta"), new TypeToken<HashMap<String, String>>() {
@@ -143,9 +143,9 @@ public class AutoGG {
     }
 
     public void getDataFromDownloadedTriggers() {
-        final Set<String> ggOptions = triggerJson.get("servers").getAsJsonObject().get("^(?:.+\\.)?hypixel\\.(?:net|io)$").getAsJsonObject().get("gg_triggers").getAsJsonObject().keySet();
-        final Set<String> otherPatternOptions = triggerJson.get("servers").getAsJsonObject().get("^(?:.+\\.)?hypixel\\.(?:net|io)$").getAsJsonObject().get("other_patterns").getAsJsonObject().keySet();
-        final Set<String> otherOptions = triggerJson.get("servers").getAsJsonObject().get("^(?:.+\\.)?hypixel\\.(?:net|io)$").getAsJsonObject().get("other").getAsJsonObject().keySet();
+        final Set<String> ggOptions = keySet(triggerJson.get("servers").getAsJsonObject().get("^(?:.+\\.)?hypixel\\.(?:net|io)$").getAsJsonObject().get("gg_triggers").getAsJsonObject());
+        final Set<String> otherPatternOptions = keySet(triggerJson.get("servers").getAsJsonObject().get("^(?:.+\\.)?hypixel\\.(?:net|io)$").getAsJsonObject().get("other_patterns").getAsJsonObject());
+        final Set<String> otherOptions = keySet(triggerJson.get("servers").getAsJsonObject().get("^(?:.+\\.)?hypixel\\.(?:net|io)$").getAsJsonObject().get("other").getAsJsonObject());
         ServerData serverData = Minecraft.getMinecraft().getCurrentServerData();
         String ip;
 
@@ -161,14 +161,10 @@ public class AutoGG {
             return;
         }
 
-        Set<String> keySet = new HashSet<>();
+        Set<String> keySet;
 
-        try { // some people don't have this function for some reason
-            keySet = triggerJson.get("servers").getAsJsonObject().keySet();
-        } catch (NoSuchMethodError e) {
-            for (Map.Entry<String, JsonElement> entry : triggerJson.get("servers").getAsJsonObject().entrySet()) {
-                keySet.add(entry.getKey());
-            }
+        try {
+            keySet = keySet(triggerJson.get("servers").getAsJsonObject());
         } catch (NullPointerException e) { // if download silently failed
             AutoGG.instance.getLogger().error("Trigger download silently failed.");
             return;
@@ -208,7 +204,7 @@ public class AutoGG {
         }
     }
 
-    // The following function includes code from org.apache.commons.lang.ArrayUtilsdata.get("other").getAsJsonObject().get(s)
+    // The following function includes code from org.apache.commons.lang.ArrayUtils
     //
     // They are used within the terms of the Apache License v2.0, which can be viewed at
     // https://apache.org/licenses/LICENSE-2.0.txt
@@ -222,6 +218,18 @@ public class AutoGG {
         System.arraycopy(primaryStrings, 0, joinedArray, 0, primaryStrings.length);
         System.arraycopy(secondaryStrings, 0, joinedArray, primaryStrings.length, secondaryStrings.length);
         return joinedArray;
+    }
+
+    public static Set<String> keySet(JsonObject json) throws NullPointerException {
+        try { // some people don't have this function for some reason
+            return json.keySet();
+        } catch (NoSuchMethodError e) {
+            Set<String> keySet = new HashSet<>();
+            for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+                keySet.add(entry.getKey());
+            }
+            return keySet;
+        }
     }
 
     public boolean works() {

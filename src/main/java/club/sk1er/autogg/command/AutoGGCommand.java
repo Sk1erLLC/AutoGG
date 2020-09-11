@@ -88,7 +88,7 @@ public class AutoGGCommand extends CommandBase {
 
                     for (String key : AutoGG.otherRegexes.keySet()) {
                         MinecraftUtils.sendMessage(prefix, ChatColor.AQUA +
-                            key.replaceAll("_", " ").toUpperCase() + ": " +
+                            key.replaceAll("_", " ").toUpperCase() + ": " + ChatColor.RESET +
                             AutoGG.otherRegexes.get(key));
                     }
 
@@ -111,7 +111,7 @@ public class AutoGGCommand extends CommandBase {
                             AutoGG.triggerMeta.get("note").replaceAll("\"", ""));
                         MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
                             Integer.toString(triggersSize) + " Trigger" + (triggersSize == 1 ? "" : "s") + ", " + casualTriggersSize + " Casual Trigger" +
-                            (triggersSize == 1 ? "" : "s"));
+                            (casualTriggersSize == 1 ? "" : "s"));
                     } catch (NullPointerException e) {
                         MinecraftUtils.sendMessage(prefix, ChatColor.RED +
                             "Could not get Trigger Meta! Were the triggers downloaded properly?");
