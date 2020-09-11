@@ -1,3 +1,21 @@
+/*
+ * AutoGG - Automatically say a selectable phrase at the end of a game on supported servers.
+ * Copyright (C) 2020  Sk1er LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package club.sk1er.autogg;
 
 import club.sk1er.autogg.command.AutoGGCommand;
@@ -7,7 +25,11 @@ import club.sk1er.modcore.ModCoreInstaller;
 import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
@@ -19,21 +41,24 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @Mod(modid = "autogg", name = "AutoGG", version = AutoGG.VERSION)
 public class AutoGG {
-    public static final String VERSION = "3.5";
+    public static final String VERSION = "4.0";
     private static final String[] ACCEPTED_CONFIG_VERSIONS = {"2"};
     public static boolean validConfigVersion, triggerFetchSuccess = true; // independent of config
     private final Logger logger = LogManager.getLogger("AutoGG");
@@ -41,10 +66,9 @@ public class AutoGG {
     private static JsonObject triggerJson;
     public static Map<String, String> triggerMeta;
 
-    public static final Map<String, ArrayList<Pattern>> ggRegexes = new HashMap<>();
+    public static final Map<String, List<Pattern>> ggRegexes = new HashMap<>();
     public static final Map<String, Pattern> otherRegexes = new HashMap<>();
     public static final Map<String, String> other = new HashMap<>();
-
 
     private AutoGGConfig autoGGConfig;
     private boolean running;
@@ -70,27 +94,20 @@ public class AutoGG {
             try {
                 validConfigVersion = triggerFetchSuccess = true;
 
-//                triggerJson = new JsonParser().parse(fetchString(
-//                        "https://static.sk1er.club/autogg/regex_triggers_newer.json")
-//                ).getAsJsonObject();
-
-                try (FileInputStream fis = new FileInputStream(new File("/home/sir/IdeaProjects/AutoGG/regex_triggers.json"))) {
-                    final byte[] data = new byte[(int) new File("/home/sir/IdeaProjects/AutoGG/regex_triggers.json").length()];
-                    //noinspection ResultOfMethodCallIgnored
-                    fis.read(data);
-                    triggerJson = new JsonParser().parse(new String(data, StandardCharsets.UTF_8)).getAsJsonObject();
-                }
+                triggerJson = new JsonParser().parse(fetchString(
+                    "http://static.sk1er.club/autogg/regex_triggers_new.json")
+                ).getAsJsonObject();
 
                 assert Arrays.asList(ACCEPTED_CONFIG_VERSIONS).contains(triggerJson.get("config_version").toString());
 
                 // black magic; https://stackoverflow.com/a/21720953
-                triggerMeta = new Gson().fromJson(triggerJson.get("meta"),
-                        new TypeToken<HashMap<String, String>>() {}.getType());
+                triggerMeta = new Gson().fromJson(triggerJson.get("meta"), new TypeToken<HashMap<String, String>>() {
+                }.getType());
 
             } catch (IOException e) {
                 if (sendChatMsg) {
                     MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
-                            "Unable to fetch triggers! Do you have an internet connection?");
+                        "Unable to fetch triggers! Do you have an internet connection?");
                 }
 
                 AutoGG.instance.logger.error("Failed to fetch triggers.", e);
@@ -98,19 +115,19 @@ public class AutoGG {
                 return;
             } catch (JsonSyntaxException e) {
                 if (sendChatMsg) {
-                    MinecraftUtils.sendMessage(AutoGG.instance.prefix,ChatColor.RED +
-                            ChatColor.BOLD.toString() +
-                            "JSON Syntax Error! Contact the mod authors if you see this message!");
+                    MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
+                        ChatColor.BOLD.toString() +
+                        "JSON Syntax Error! Contact the mod authors if you see this message!");
                 }
 
                 AutoGG.instance.logger.error(
-                        "JSON Syntax Error! Contact us in the support channel at https://discord.gg/sk1er.", e);
+                    "JSON Syntax Error! Contact us in the support channel at https://discord.gg/sk1er.", e);
                 triggerFetchSuccess = false;
                 return;
             } catch (AssertionError | NullPointerException e) {
                 if (sendChatMsg) {
                     MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
-                            "Unsupported triggers version! Please update AutoGG!");
+                        "Unsupported triggers version! Please update AutoGG!");
                 }
 
                 AutoGG.instance.logger.error("Unsupported triggers version! Please update AutoGG!");
@@ -120,7 +137,7 @@ public class AutoGG {
 
             if (sendChatMsg) {
                 MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.GREEN +
-                        "Successfully fetched triggers!");
+                    "Successfully fetched triggers!");
             }
         });
     }
@@ -149,7 +166,7 @@ public class AutoGG {
         try { // some people don't have this function for some reason
             keySet = triggerJson.get("servers").getAsJsonObject().keySet();
         } catch (NoSuchMethodError e) {
-            for(Map.Entry<String, JsonElement> entry : triggerJson.get("servers").getAsJsonObject().entrySet()) {
+            for (Map.Entry<String, JsonElement> entry : triggerJson.get("servers").getAsJsonObject().entrySet()) {
                 keySet.add(entry.getKey());
             }
         } catch (NullPointerException e) { // if download silently failed
@@ -162,23 +179,23 @@ public class AutoGG {
                 JsonObject data = triggerJson.get("servers").getAsJsonObject().get(a).getAsJsonObject();
                 for (String s : ggOptions) {
                     for (JsonElement j : data.get("gg_triggers")
-                            .getAsJsonObject()
-                            .get(s)
-                            .getAsJsonArray()) {
+                        .getAsJsonObject()
+                        .get(s)
+                        .getAsJsonArray()) {
                         ggRegexes.get(s).add(Pattern.compile(j.toString().substring(1, j.toString().length() - 1)
-                                .replaceAll("\\\\{2}", "\\\\")));
-                                // for some reason, using \\<character> in json turns into \\<character> rather than
-                                // \<character> when compiled, i don't know why must be a quirk of json
+                            .replaceAll("\\\\{2}", "\\\\")));
+                        // for some reason, using \\<character> in json turns into \\<character> rather than
+                        // \<character> when compiled, i don't know why must be a quirk of json
                     }
                 }
                 for (String s : otherPatternOptions) {
                     String p = data.get("other_patterns").getAsJsonObject().get(s).toString();
                     otherRegexes.put(s, Pattern.compile(p.substring(1, p.length() - 1)
-                            .replaceAll("\\\\{2}", "\\\\")
-                            // for some reason, using \\<character> in json turns into \\<character> rather than
-                            // \<character> when compiled, i don't know why must be a quirk of json
-                            .replaceAll("(?<!\\\\)\\$\\{antigg_strings}",
-                                    String.join("|", getAntiGGStrings()))
+                        .replaceAll("\\\\{2}", "\\\\")
+                        // for some reason, using \\<character> in json turns into \\<character> rather than
+                        // \<character> when compiled, i don't know why must be a quirk of json
+                        .replaceAll("(?<!\\\\)\\$\\{antigg_strings}",
+                            String.join("|", getAntiGGStrings()))
                     ));
                 }
                 for (String s : otherOptions) {
@@ -201,8 +218,7 @@ public class AutoGG {
     private static String[] getAntiGGStrings() {
         String[] primaryStrings = AutoGGListener.getPrimaryStrings();
         String[] secondaryStrings = AutoGGListener.getSecondaryStrings();
-        String[] joinedArray = (String[]) Array.newInstance(primaryStrings.getClass().getComponentType(),
-                primaryStrings.length + secondaryStrings.length);
+        String[] joinedArray = (String[]) Array.newInstance(primaryStrings.getClass().getComponentType(), primaryStrings.length + secondaryStrings.length);
         System.arraycopy(primaryStrings, 0, joinedArray, 0, primaryStrings.length);
         System.arraycopy(secondaryStrings, 0, joinedArray, primaryStrings.length, secondaryStrings.length);
         return joinedArray;
@@ -224,8 +240,6 @@ public class AutoGG {
         return autoGGConfig;
     }
 
-    // The following function is taken from club.sk1er.mods.core.util.WebUtil with slight modifications
-    // Copyright (C) Sk1er LLC 2020
     public static String fetchString(String url) throws IOException {
         HttpURLConnection connection = null;
         String s;

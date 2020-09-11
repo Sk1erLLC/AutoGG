@@ -1,3 +1,21 @@
+/*
+ * AutoGG - Automatically say a selectable phrase at the end of a game on supported servers.
+ * Copyright (C) 2020  Sk1er LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package club.sk1er.autogg.command;
 
 import club.sk1er.autogg.AutoGG;
@@ -16,7 +34,9 @@ import net.minecraft.util.ChatComponentText;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class AutoGGCommand extends CommandBase {
@@ -28,7 +48,6 @@ public class AutoGGCommand extends CommandBase {
     private static Date parseDate(String date) {
         try {
             return ISO_8601.parse(date);
-
         } catch (ParseException e) {
             return new Date(0);
         }
@@ -60,7 +79,7 @@ public class AutoGGCommand extends CommandBase {
                     for (String key : AutoGG.ggRegexes.keySet()) {
                         if (!AutoGG.ggRegexes.get(key).isEmpty()) {
                             MinecraftUtils.sendMessage(prefix, ChatColor.AQUA +
-                                    key.replaceAll("_", " ").toUpperCase() + ":\n");
+                                key.replaceAll("_", " ").toUpperCase() + ":\n");
                             for (Pattern pattern : AutoGG.ggRegexes.get(key)) {
                                 MinecraftUtils.sendMessage("  ", pattern.toString());
                             }
@@ -69,33 +88,33 @@ public class AutoGGCommand extends CommandBase {
 
                     for (String key : AutoGG.otherRegexes.keySet()) {
                         MinecraftUtils.sendMessage(prefix, ChatColor.AQUA +
-                                key.replaceAll("_", " ").toUpperCase() + ": " +
-                                AutoGG.otherRegexes.get(key));
+                            key.replaceAll("_", " ").toUpperCase() + ": " +
+                            AutoGG.otherRegexes.get(key));
                     }
 
                     break;
                 }
                 case "info": {
                     MinecraftUtils.sendMessage(prefix, ChatColor.GREEN + "Mod Version: " + AutoGG.VERSION);
-                    int g = AutoGG.ggRegexes.get("triggers").size();
-                    int c = AutoGG.ggRegexes.get("casual_triggers").size();
+                    int triggersSize = AutoGG.ggRegexes.get("triggers").size();
+                    int casualTriggersSize = AutoGG.ggRegexes.get("casual_triggers").size();
                     try {
                         MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
-                                "Triggers Version: " +
-                                AutoGG.triggerMeta.get("version").replaceAll("\"", ""));
+                            "Triggers Version: " +
+                            AutoGG.triggerMeta.get("version").replaceAll("\"", ""));
                         MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
-                                "Triggers last updated on " +
-                                LOCALE_FORMAT.format(parseDate(AutoGG.triggerMeta.get("upload_date")
-                                        .replaceAll("\"", ""))));
+                            "Triggers last updated on " +
+                            LOCALE_FORMAT.format(parseDate(AutoGG.triggerMeta.get("upload_date")
+                                .replaceAll("\"", ""))));
                         MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
-                                "Triggers info message: " +
-                                AutoGG.triggerMeta.get("note").replaceAll("\"", ""));
+                            "Triggers info message: " +
+                            AutoGG.triggerMeta.get("note").replaceAll("\"", ""));
                         MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
-                                Integer.toString(g) + " Trigger" + (g == 1 ? "" : "s") + ", " + c + " Casual Trigger" +
-                                (g == 1 ? "" : "s"));
+                            Integer.toString(triggersSize) + " Trigger" + (triggersSize == 1 ? "" : "s") + ", " + casualTriggersSize + " Casual Trigger" +
+                            (triggersSize == 1 ? "" : "s"));
                     } catch (NullPointerException e) {
                         MinecraftUtils.sendMessage(prefix, ChatColor.RED +
-                                "Could not get Trigger Meta! Were the triggers downloaded properly?");
+                            "Could not get Trigger Meta! Were the triggers downloaded properly?");
                         AutoGG.instance.getLogger().error("Could not get trigger meta.", e);
                     }
 
@@ -103,43 +122,43 @@ public class AutoGGCommand extends CommandBase {
                 }
                 case "credits": {
                     MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
-                            "AutoGG Originally created by 2Pi, continued by Sk1er. " +
-                            "Regex update & multi-server support by SirNapkin1334.");
+                        "AutoGG Originally created by 2Pi, continued by Sk1er LLC. " +
+                        "Regex update & multi-server support by SirNapkin1334.");
                     MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
-                            "Additional special thanks to: Asbyth, LlamaLad7, FalseHonesty, DJTheRedstoner, " +
-                            "Pluggs and Unextracted!");
+                        "Additional special thanks to: LlamaLad7, FalseHonesty, DJTheRedstoner, " +
+                        "Pluggs and Unextracted!");
                     break; // Lots of general help x3, General help, Getting antigg strings x2
                 }
                 default: { // thank you asbyth!
                     ChatComponentText discordLink = new ChatComponentText(prefix + ChatColor.GREEN +
-                            "For support with AutoGG, go to discord.gg/sk1er.");
+                        "For support with AutoGG, go to discord.gg/sk1er.");
                     discordLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
-                            "https://discord.gg/sk1er"));
+                        "https://discord.gg/sk1er"));
                     discordLink.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            new ChatComponentText("Click to join our Discord.")));
+                        new ChatComponentText("Click to join our Discord.")));
 
                     ChatComponentText autoGGConfig = new ChatComponentText(prefix + ChatColor.GREEN +
-                            "To configure AutoGG, run /autogg.");
+                        "To configure AutoGG, run /autogg.");
                     autoGGConfig.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                            "/autogg"));
+                        "/autogg"));
                     autoGGConfig.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            new ChatComponentText("Click to run /autogg.")));
+                        new ChatComponentText("Click to run /autogg.")));
 
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(discordLink);
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(autoGGConfig);
                     MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
-                            "AutoGG Commands: refresh, info, credits, help");
+                        "AutoGG Commands: refresh, info, credits, help");
                     // help doesn't actually exist but that's our secret
                     break;
                 }
             }
         }
     }
-    
+
     @Override
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
         return args.length == 1 ? getListOfStringsMatchingLastWord(args,
-                "refresh", "info", "credits", "help") : null;
+            "refresh", "info", "credits", "help") : null;
     }
 
     @Override
