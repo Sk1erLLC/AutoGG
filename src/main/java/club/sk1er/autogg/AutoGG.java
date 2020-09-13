@@ -158,6 +158,7 @@ public class AutoGG {
         }
 
         if ((ip = serverData == null ? null : serverData.serverIP) == null) {
+            setDefaultTriggerData();
             return;
         }
 
@@ -169,6 +170,8 @@ public class AutoGG {
             AutoGG.instance.getLogger().error("Trigger download silently failed.");
             return;
         }
+
+        boolean foundServer = false;
 
         for (String a : keySet) { // could be made more efficient by pre-building list and compiling on download but
             if (Pattern.compile(a).matcher(ip).matches()) { // there is not an easy way to do it i don't think
@@ -199,9 +202,22 @@ public class AutoGG {
                     other.put(s, p.substring(1, p.length() - 1));
                 }
 
+                foundServer = true;
                 break;
             }
         }
+
+        if (!foundServer) {
+            setDefaultTriggerData();
+        }
+
+    }
+
+    private static void setDefaultTriggerData() {
+        Pattern unmatch = Pattern.compile("$^");
+        otherRegexes.put("antigg", unmatch);
+        otherRegexes.put("anti_karma", unmatch);
+        other.put("msg", "");
     }
 
     // The following function includes code from org.apache.commons.lang.ArrayUtils
