@@ -58,7 +58,7 @@ import java.util.regex.Pattern;
 
 @Mod(modid = "autogg", name = "AutoGG", version = AutoGG.VERSION)
 public class AutoGG {
-    public static final String VERSION = "4.0";
+    public static final String VERSION = "4.0.1";
     private static final String[] ACCEPTED_CONFIG_VERSIONS = {"2"};
     public static boolean validConfigVersion, triggerFetchSuccess = true; // independent of config
     private final Logger logger = LogManager.getLogger("AutoGG");
