@@ -54,7 +54,6 @@ public class AutoGGListener {
             try { // sometimes this throws an NPE
                 mineplex = mineplexPattern.matcher(Minecraft.getMinecraft().getCurrentServerData().serverIP).matches();
             } catch (Exception e) {
-                AutoGG.instance.getLogger().warn("Failed getting server IP.");
                 mineplex = false;
             }
             String scoreboardTitle;
