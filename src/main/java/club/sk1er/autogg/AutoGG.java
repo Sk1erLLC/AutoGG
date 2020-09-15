@@ -52,13 +52,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 @Mod(modid = "autogg", name = "AutoGG", version = AutoGG.VERSION)
 public class AutoGG {
-    public static final String VERSION = "4.0.1";
+    public static final String VERSION = "4.0.2";
     private static final String[] ACCEPTED_CONFIG_VERSIONS = {"2"};
     public static boolean validConfigVersion, triggerFetchSuccess = true; // independent of config
     private final Logger logger = LogManager.getLogger("AutoGG");
@@ -157,7 +158,9 @@ public class AutoGG {
             ggRegexes.put(s, new ArrayList<>());
         }
 
-        if ((ip = serverData == null ? null : serverData.serverIP) == null) {
+        try {
+            ip = serverData.serverIP.toLowerCase(Locale.ENGLISH);
+        } catch (NullPointerException e) {
             setDefaultTriggerData();
             return;
         }
