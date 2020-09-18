@@ -25,14 +25,9 @@ import club.sk1er.modcore.ModCoreInstaller;
 import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -47,14 +42,7 @@ import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 @Mod(modid = "autogg", name = "AutoGG", version = AutoGG.VERSION)
@@ -144,26 +132,33 @@ public class AutoGG {
     }
 
     public void getDataFromDownloadedTriggers() {
-        final Set<String> ggOptions = keySet(triggerJson.get("servers").getAsJsonObject().get("^(?:.+\\.)?hypixel\\.(?:net|io)$").getAsJsonObject().get("gg_triggers").getAsJsonObject());
-        final Set<String> otherPatternOptions = keySet(triggerJson.get("servers").getAsJsonObject().get("^(?:.+\\.)?hypixel\\.(?:net|io)$").getAsJsonObject().get("other_patterns").getAsJsonObject());
-        final Set<String> otherOptions = keySet(triggerJson.get("servers").getAsJsonObject().get("^(?:.+\\.)?hypixel\\.(?:net|io)$").getAsJsonObject().get("other").getAsJsonObject());
-        ServerData serverData = Minecraft.getMinecraft().getCurrentServerData();
-        String ip;
-
         ggRegexes.clear();
         otherRegexes.clear();
         other.clear();
+        final JsonObject firstServerObject;
+        try {
+            firstServerObject = triggerJson.get("servers").getAsJsonObject().get(keySet(triggerJson.get("servers").getAsJsonObject()).iterator().next()).getAsJsonObject();
+        } catch (NullPointerException e) {
+            setDefaultTriggerData();
+            return;
+        }
+
+        final Set<String> ggOptions = keySet(firstServerObject.get("gg_triggers").getAsJsonObject());
+        final Set<String> otherPatternOptions = keySet(firstServerObject.get("other_patterns").getAsJsonObject());
+        final Set<String> otherOptions = keySet(firstServerObject.get("other").getAsJsonObject());
 
         for (String s : ggOptions) {
             ggRegexes.put(s, new ArrayList<>());
         }
 
-        try {
-            ip = serverData.serverIP.toLowerCase(Locale.ENGLISH);
-        } catch (NullPointerException e) {
+        String ip;
+
+        if ("".equals(ip = getServerIP())) {
             setDefaultTriggerData();
             return;
         }
+
+
 
         Set<String> keySet;
 
@@ -174,16 +169,11 @@ public class AutoGG {
             return;
         }
 
-        boolean foundServer = false;
-
         for (String a : keySet) { // could be made more efficient by pre-building list and compiling on download but
             if (Pattern.compile(a).matcher(ip).matches()) { // there is not an easy way to do it i don't think
                 JsonObject data = triggerJson.get("servers").getAsJsonObject().get(a).getAsJsonObject();
                 for (String s : ggOptions) {
-                    for (JsonElement j : data.get("gg_triggers")
-                        .getAsJsonObject()
-                        .get(s)
-                        .getAsJsonArray()) {
+                    for (JsonElement j : data.get("gg_triggers").getAsJsonObject().get(s).getAsJsonArray()) {
                         ggRegexes.get(s).add(Pattern.compile(j.toString().substring(1, j.toString().length() - 1)
                             .replaceAll("\\\\{2}", "\\\\")));
                         // for some reason, using \\<character> in json turns into \\<character> rather than
@@ -205,21 +195,19 @@ public class AutoGG {
                     other.put(s, p.substring(1, p.length() - 1));
                 }
 
-                foundServer = true;
-                break;
+                return;
             }
         }
 
-        if (!foundServer) {
-            setDefaultTriggerData();
-        }
+        setDefaultTriggerData();
 
     }
 
+    @SuppressWarnings("RegExpUnexpectedAnchor")
     private static void setDefaultTriggerData() {
-        Pattern unmatch = Pattern.compile("$^");
-        otherRegexes.put("antigg", unmatch);
-        otherRegexes.put("anti_karma", unmatch);
+        Pattern nonMatching = Pattern.compile("$^");
+        otherRegexes.put("antigg", nonMatching);
+        otherRegexes.put("anti_karma", nonMatching);
         other.put("msg", "");
     }
 
@@ -248,6 +236,15 @@ public class AutoGG {
                 keySet.add(entry.getKey());
             }
             return keySet;
+        }
+    }
+
+    public static String getServerIP() {
+        try {
+            return Minecraft.getMinecraft().getCurrentServerData().serverIP
+                    .replaceAll("^(.*):\\d{1,5}$", "$1").toLowerCase(Locale.ENGLISH);
+        } catch (NullPointerException e) {
+            return "";
         }
     }
 
