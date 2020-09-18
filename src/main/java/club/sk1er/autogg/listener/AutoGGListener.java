@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 public class AutoGGListener {
     private boolean invoked, deferGG, useDelay, mineplex;
 
-    private final Pattern mineplexPattern = Pattern.compile("^(?:us|eu)\\.mineplex\\.com$");
+    private final Pattern mineplexPattern = Pattern.compile("^(?:us|eu\\.)?mineplex\\.com$");
 
     @SubscribeEvent
     public void switchTriggersetWrapper(FMLNetworkEvent.ClientConnectedToServerEvent event) {
@@ -51,11 +51,7 @@ public class AutoGGListener {
     public void worldSwap(WorldEvent.Load event) {
         invoked = false; // we can set it on Load since it always follows a load, unless the player disconnects
         Multithreading.schedule(() -> { // in which case it no longer matters
-            try { // sometimes this throws an NPE
-                mineplex = mineplexPattern.matcher(Minecraft.getMinecraft().getCurrentServerData().serverIP).matches();
-            } catch (Exception e) {
-                mineplex = false;
-            }
+            mineplex = mineplexPattern.matcher(AutoGG.getServerIP()).matches();
             String scoreboardTitle;
             try { // this always fails on mineplex but doesn't really matter ¯\_(ツ)_/¯
                 scoreboardTitle = EnumChatFormatting.getTextWithoutFormattingCodes(event.world.getScoreboard()

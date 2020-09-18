@@ -79,7 +79,7 @@ public class AutoGGCommand extends CommandBase {
                     for (String key : AutoGG.ggRegexes.keySet()) {
                         if (!AutoGG.ggRegexes.get(key).isEmpty()) {
                             MinecraftUtils.sendMessage(prefix, ChatColor.AQUA +
-                                key.replaceAll("_", " ").toUpperCase() + ":\n");
+                                key.replaceAll("_", " ").toUpperCase(Locale.ENGLISH) + ":");
                             for (Pattern pattern : AutoGG.ggRegexes.get(key)) {
                                 MinecraftUtils.sendMessage("  ", pattern.toString());
                             }
@@ -87,18 +87,20 @@ public class AutoGGCommand extends CommandBase {
                     }
 
                     for (String key : AutoGG.otherRegexes.keySet()) {
-                        MinecraftUtils.sendMessage(prefix, ChatColor.AQUA +
-                            key.replaceAll("_", " ").toUpperCase() + ": " + ChatColor.RESET +
-                            AutoGG.otherRegexes.get(key));
+                        if (!"$^".equals(AutoGG.otherRegexes.get(key).toString())) {
+                            MinecraftUtils.sendMessage(prefix, ChatColor.AQUA +
+                                key.replaceAll("_", " ").toUpperCase(Locale.ENGLISH) + ": " + ChatColor.RESET +
+                                AutoGG.otherRegexes.get(key));
+                        }
                     }
 
                     break;
                 }
                 case "info": {
                     MinecraftUtils.sendMessage(prefix, ChatColor.GREEN + "Mod Version: " + AutoGG.VERSION);
-                    int triggersSize = AutoGG.ggRegexes.get("triggers").size();
-                    int casualTriggersSize = AutoGG.ggRegexes.get("casual_triggers").size();
                     try {
+                        int triggersSize = AutoGG.ggRegexes.get("triggers").size();
+                        int casualTriggersSize = AutoGG.ggRegexes.get("casual_triggers").size();
                         MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
                             "Triggers Version: " +
                             AutoGG.triggerMeta.get("version").replaceAll("\"", ""));

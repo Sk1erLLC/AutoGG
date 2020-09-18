@@ -25,7 +25,7 @@ import club.sk1er.vigilance.data.PropertyType;
 
 import java.io.File;
 
-@SuppressWarnings("unused")
+@SuppressWarnings("FieldMayBeFinal")
 public class AutoGGConfig extends Vigilant {
 
     @Property(
