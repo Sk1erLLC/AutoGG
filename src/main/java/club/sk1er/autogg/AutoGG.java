@@ -84,7 +84,7 @@ public class AutoGG {
                 validConfigVersion = triggerFetchSuccess = true;
 
                 triggerJson = new JsonParser().parse(fetchString(
-                    "http://static.sk1er.club/autogg/regex_triggers_new.json")
+                    "https://static.sk1er.club/autogg/regex_triggers_new.json")
                 ).getAsJsonObject();
 
                 assert Arrays.asList(ACCEPTED_CONFIG_VERSIONS).contains(triggerJson.get("triggers_format").toString());
