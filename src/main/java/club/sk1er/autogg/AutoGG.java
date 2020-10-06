@@ -28,7 +28,6 @@ import club.sk1er.mods.core.util.Multithreading;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -36,8 +35,6 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +47,7 @@ import java.util.regex.Pattern;
 
 @Mod(modid = "autogg", name = "AutoGG", version = AutoGG.VERSION)
 public class AutoGG {
-    public static final String VERSION = "4.0.3";
+    public static final String VERSION = "4.0.2";
     private static final String[] ACCEPTED_CONFIG_VERSIONS = {"2"};
     public static boolean validConfigVersion, triggerFetchSuccess = true; // independent of config
     private final Logger logger = LogManager.getLogger("AutoGG");
@@ -87,7 +84,7 @@ public class AutoGG {
                 validConfigVersion = triggerFetchSuccess = true;
 
                 triggerJson = new JsonParser().parse(fetchString(
-                        "https://static.sk1er.club/autogg/regex_triggers_new.json")
+                    "http://static.sk1er.club/autogg/regex_triggers_new.json")
                 ).getAsJsonObject();
 
                 assert Arrays.asList(ACCEPTED_CONFIG_VERSIONS).contains(triggerJson.get("triggers_format").toString());
@@ -99,7 +96,7 @@ public class AutoGG {
             } catch (IOException e) {
                 if (sendChatMsg) {
                     MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
-                            "Unable to fetch triggers! Do you have an internet connection?");
+                        "Unable to fetch triggers! Do you have an internet connection?");
                 }
 
                 AutoGG.instance.logger.error("Failed to fetch triggers.", e);
@@ -108,18 +105,18 @@ public class AutoGG {
             } catch (JsonSyntaxException e) {
                 if (sendChatMsg) {
                     MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
-                            ChatColor.BOLD.toString() +
-                            "JSON Syntax Error! Contact the mod authors at https://sk1er.club/support-discord if you see this message!");
+                        ChatColor.BOLD.toString() +
+                        "JSON Syntax Error! Contact the mod authors if you see this message!");
                 }
 
                 AutoGG.instance.logger.error(
-                        "JSON Syntax Error! Open a ticket in our support server at https://sk1er.club/support-discord.", e);
+                    "JSON Syntax Error! Contact us in the support channel at https://discord.gg/sk1er.", e);
                 triggerFetchSuccess = false;
                 return;
             } catch (AssertionError | NullPointerException e) {
                 if (sendChatMsg) {
                     MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
-                            "Unsupported triggers version! Please update AutoGG!");
+                        "Unsupported triggers version! Please update AutoGG!");
                 }
 
                 AutoGG.instance.logger.error("Unsupported triggers version! Please update AutoGG!");
@@ -129,7 +126,7 @@ public class AutoGG {
 
             if (sendChatMsg) {
                 MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.GREEN +
-                        "Successfully fetched triggers!");
+                    "Successfully fetched triggers!");
             }
         });
     }
@@ -154,11 +151,14 @@ public class AutoGG {
             ggRegexes.put(s, new ArrayList<>());
         }
 
-        final String ip = getServerIP();
-        if (ip == null) {
+        String ip;
+
+        if ("".equals(ip = getServerIP())) {
             setDefaultTriggerData();
             return;
         }
+
+
 
         Set<String> keySet;
 
@@ -174,24 +174,17 @@ public class AutoGG {
                 JsonObject data = triggerJson.get("servers").getAsJsonObject().get(a).getAsJsonObject();
                 for (String s : ggOptions) {
                     for (JsonElement j : data.get("gg_triggers").getAsJsonObject().get(s).getAsJsonArray()) {
-                        ggRegexes.get(s).add(Pattern.compile(j.toString().substring(1, j.toString().length() - 1)
-                                .replaceAll("\\\\{2}", "\\\\")));
-                        // for some reason, using \\<character> in json turns into \\<character> rather than
-                        // \<character> when compiled, i don't know why must be a quirk of json
+                        ggRegexes.get(s).add(Pattern.compile(j.getAsString()));
                     }
                 }
                 for (String s : otherPatternOptions) {
-                    String p = data.get("other_patterns").getAsJsonObject().get(s).toString();
-                    otherRegexes.put(s, Pattern.compile(p.substring(1, p.length() - 1)
-                            .replaceAll("\\\\{2}", "\\\\")
-                            // See above
-                            .replaceAll("(?<!\\\\)\\$\\{antigg_strings}",
-                                    String.join("|", getAntiGGStrings()))
+                    String p = data.get("other_patterns").getAsJsonObject().get(s).getAsString();
+                    otherRegexes.put(s, Pattern.compile(p.replaceAll("(?<!\\\\)\\$\\{antigg_strings}",
+                            String.join("|", getAntiGGStrings()))
                     ));
                 }
                 for (String s : otherOptions) {
-                    String p = data.get("other").getAsJsonObject().get(s).toString();
-                    other.put(s, p.substring(1, p.length() - 1));
+                    other.put(s, data.get("other").getAsJsonObject().get(s).getAsString());
                 }
 
                 return;
@@ -238,16 +231,13 @@ public class AutoGG {
         }
     }
 
-    @Nullable
     public static String getServerIP() {
-        final ServerData serverData = Minecraft.getMinecraft().getCurrentServerData();
-        if (serverData != null) {
-            // Retrieve the host from the server IP
-            return serverData.serverIP.replaceAll("^(.*):\\d{1,5}$", "$1")
-                    .toLowerCase(Locale.ENGLISH);
+        try {
+            return Minecraft.getMinecraft().getCurrentServerData().serverIP
+                    .replaceAll("^(.*):\\d{1,5}$", "$1").toLowerCase(Locale.ENGLISH);
+        } catch (NullPointerException e) {
+            return "";
         }
-
-        return null;
     }
 
     public boolean works() {
@@ -262,17 +252,16 @@ public class AutoGG {
         this.running = running;
     }
 
-    @NotNull
     public AutoGGConfig getAutoGGConfig() {
         return autoGGConfig;
     }
 
-    @NotNull
     public static String fetchString(String url) throws IOException {
-        String content;
+        HttpURLConnection connection = null;
+        String s;
 
         try {
-            final HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
             connection.setUseCaches(false);
             connection.addRequestProperty("User-Agent", "Mozilla/4.76 (Sk1er AutoGG)");
@@ -281,22 +270,24 @@ public class AutoGG {
             connection.setDoOutput(true);
 
             try (InputStream setup = connection.getInputStream()) {
-                content = IOUtils.toString(setup, Charset.defaultCharset());
+                s = IOUtils.toString(setup, Charset.defaultCharset());
             }
         } catch (Exception e) {
             AutoGG.instance.logger.error("Failed to fetch string.", e);
             throw new IOException("Failed to fetch triggers!");
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
 
-        return content;
+        return s;
     }
 
-    @NotNull
     public Logger getLogger() {
         return logger;
     }
 
-    @NotNull
     public String getPrefix() {
         return prefix;
     }
