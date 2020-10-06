@@ -137,7 +137,7 @@ public class AutoGGCommand extends CommandBase {
                     ChatComponentText supportDiscordLink = new ChatComponentText(prefix + ChatColor.GREEN +
                         "For support with AutoGG, go to https://sk1er.club/support-discord.");
                     supportDiscordLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
-                        "https://discord.gg/d4KFR9H"));
+                        "https://sk1er.club/support-discord"));
                     supportDiscordLink.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                         new ChatComponentText("Click to join our support Discord.")));
 
