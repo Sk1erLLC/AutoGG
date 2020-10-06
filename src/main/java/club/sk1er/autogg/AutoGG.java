@@ -109,11 +109,11 @@ public class AutoGG {
                 if (sendChatMsg) {
                     MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
                             ChatColor.BOLD.toString() +
-                            "JSON Syntax Error! Contact the mod authors if you see this message!");
+                            "JSON Syntax Error! Contact the mod authors at https://sk1er.club/support-discord if you see this message!");
                 }
 
                 AutoGG.instance.logger.error(
-                        "JSON Syntax Error! Contact us in the support channel at https://discord.gg/sk1er.", e);
+                        "JSON Syntax Error! Open a ticket in our support server at https://sk1er.club/support-discord.", e);
                 triggerFetchSuccess = false;
                 return;
             } catch (AssertionError | NullPointerException e) {
@@ -184,8 +184,7 @@ public class AutoGG {
                     String p = data.get("other_patterns").getAsJsonObject().get(s).toString();
                     otherRegexes.put(s, Pattern.compile(p.substring(1, p.length() - 1)
                             .replaceAll("\\\\{2}", "\\\\")
-                            // for some reason, using \\<character> in json turns into \\<character> rather than
-                            // \<character> when compiled, i don't know why must be a quirk of json
+                            // See above
                             .replaceAll("(?<!\\\\)\\$\\{antigg_strings}",
                                     String.join("|", getAntiGGStrings()))
                     ));

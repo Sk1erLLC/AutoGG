@@ -123,6 +123,7 @@ public class AutoGGCommand extends CommandBase {
 
                     break;
                 }
+
                 case "credits": {
                     MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
                         "AutoGG Originally created by 2Pi, continued by Sk1er LLC. " +
@@ -133,12 +134,20 @@ public class AutoGGCommand extends CommandBase {
                     break; // Lots of general help x3, General help, Getting antigg strings x2
                 }
                 default: { // thank you asbyth!
+                    ChatComponentText supportDiscordLink = new ChatComponentText(prefix + ChatColor.GREEN +
+                        "For support with AutoGG, go to https://sk1er.club/support-discord.");
+                    supportDiscordLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
+                        "https://discord.gg/d4KFR9H"));
+                    supportDiscordLink.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        new ChatComponentText("Click to join our support Discord.")));
+
                     ChatComponentText discordLink = new ChatComponentText(prefix + ChatColor.GREEN +
-                        "For support with AutoGG, go to discord.gg/sk1er.");
+                            "For the community server for all Sk1er mods, go to https://discord.gg/sk1er.");
                     discordLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
-                        "https://discord.gg/sk1er"));
+                            "https://discord.gg/sk1er"));
                     discordLink.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        new ChatComponentText("Click to join our Discord.")));
+                            new ChatComponentText("Click to join our community Discord.")));
+
 
                     ChatComponentText autoGGConfig = new ChatComponentText(prefix + ChatColor.GREEN +
                         "To configure AutoGG, run /autogg.");
@@ -147,6 +156,7 @@ public class AutoGGCommand extends CommandBase {
                     autoGGConfig.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                         new ChatComponentText("Click to run /autogg.")));
 
+                    Minecraft.getMinecraft().thePlayer.addChatComponentMessage(supportDiscordLink);
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(discordLink);
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(autoGGConfig);
                     MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
