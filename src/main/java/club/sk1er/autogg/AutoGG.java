@@ -174,17 +174,11 @@ public class AutoGG {
                 JsonObject data = triggerJson.get("servers").getAsJsonObject().get(a).getAsJsonObject();
                 for (String s : ggOptions) {
                     for (JsonElement j : data.get("gg_triggers").getAsJsonObject().get(s).getAsJsonArray()) {
-                        ggRegexes.get(s).add(Pattern.compile(j.toString().substring(1, j.toString().length() - 1)
-                                .replaceAll("\\\\{2}", "\\\\")));
-                        // for some reason, using \\<character> in json turns into \\<character> rather than
-                        // \<character> when compiled, i don't know why must be a quirk of json
+                        ggRegexes.get(s).add(Pattern.compile(j.getAsString()));
                     }
                 }
                 for (String s : otherPatternOptions) {
-                    String p = data.get("other_patterns").getAsJsonObject().get(s).toString();
-                    otherRegexes.put(s, Pattern.compile(p.substring(1, p.length() - 1)
-                            .replaceAll("\\\\{2}", "\\\\")
-                            // See above
+                    otherRegexes.put(s,Pattern.compile(data.get("other_patterns").getAsJsonObject().get(s).getAsString()
                             .replaceAll("(?<!\\\\)\\$\\{antigg_strings}",
                                     String.join("|", getAntiGGStrings()))
                     ));
