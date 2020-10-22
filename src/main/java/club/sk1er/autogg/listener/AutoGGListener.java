@@ -24,6 +24,7 @@ import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.vigilance.data.Property;
+import com.typesafe.config.ConfigException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -126,13 +127,13 @@ public class AutoGGListener {
         Multithreading.schedule(() -> {
             try {
                 Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                        AutoGG.other.get("msg") + getPrimaryString()
+                        AutoGG.other.get("msg") + getString(false)
                 );
                 if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled() && doSecond) {
                     Multithreading.schedule(() -> {
                         try {
                             Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                                    AutoGG.other.get("msg") + getSecondString()
+                                    AutoGG.other.get("msg") + getString(true)
                             );
                         } catch (RuntimeException e) {
                             MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED +
@@ -179,50 +180,22 @@ public class AutoGGListener {
     }
 
     @NotNull
-    public static String[] getPrimaryStrings() {
+    public static String[] getStrings(boolean second) {
         try {
-            Property autoGGPhrase = AutoGGConfig.class.getDeclaredField("autoGGPhrase").getAnnotation(Property.class);
-            List<String> options = new ArrayList<>(Arrays.asList(autoGGPhrase.options()));
-            return options.toArray(new String[0]);
+            return AutoGGConfig.class.getDeclaredField("autoGGPhrase" + (second ? "2" : ""))
+                .getAnnotation(Property.class).options();
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-
-        return new String[0];
-    }
-
-    @NotNull
-    private String getPrimaryString() throws RuntimeException {
-        int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase();
-        String[] primaryStrings = getPrimaryStrings();
-        if (autoGGPhrase >= 0 && autoGGPhrase < primaryStrings.length) {
-            return primaryStrings[autoGGPhrase];
-        } else { // invalid config
-            throw new RuntimeException("An unknown error occurred parsing config. Try deleting " +
-                    ".minecraft/config/autogg.toml or contacting the mod authors.");
+            AutoGG.instance.getLogger().error("autoGGPhrase" + (second ? "2" : "") + " does not exist?????", e);
+            return new String[0];
         }
     }
 
     @NotNull
-    public static String[] getSecondaryStrings() {
-        try {
-            Property autoGGPhrase = AutoGGConfig.class.getDeclaredField("autoGGPhrase2")
-                    .getAnnotation(Property.class);
-            List<String> options = new ArrayList<>(Arrays.asList(autoGGPhrase.options()));
-            return options.toArray(new String[0]);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-
-        return new String[0];
-    }
-
-    @NotNull
-    private String getSecondString() throws RuntimeException {
-        int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase2();
-        String[] primaryStrings = getSecondaryStrings();
-        if (autoGGPhrase >= 0 && autoGGPhrase < primaryStrings.length) {
-            return primaryStrings[autoGGPhrase];
+    public static String getString(boolean second) {
+        int phrase = second ? AutoGG.instance.getAutoGGConfig().getAutoGGPhrase2() : AutoGG.instance.getAutoGGConfig().getAutoGGPhrase();
+        String[] strings = getStrings(second);
+        if (phrase >= 0 && phrase < strings.length) {
+            return strings[phrase];
         } else { // invalid config
             throw new RuntimeException("An unknown error occurred parsing config. Try deleting " +
                     ".minecraft/config/autogg.toml or contacting the mod authors.");

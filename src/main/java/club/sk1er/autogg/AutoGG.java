@@ -218,8 +218,8 @@ public class AutoGG {
     //
     // Modifications: strip out everything that isn't the actual copying part and make it work on internal variables
     private static String[] getAntiGGStrings() {
-        String[] primaryStrings = AutoGGListener.getPrimaryStrings();
-        String[] secondaryStrings = AutoGGListener.getSecondaryStrings();
+        String[] primaryStrings = AutoGGListener.getStrings(false);
+        String[] secondaryStrings = AutoGGListener.getStrings(true);
         String[] joinedArray = (String[]) Array.newInstance(primaryStrings.getClass().getComponentType(), primaryStrings.length + secondaryStrings.length);
         System.arraycopy(primaryStrings, 0, joinedArray, 0, primaryStrings.length);
         System.arraycopy(secondaryStrings, 0, joinedArray, primaryStrings.length, secondaryStrings.length);
