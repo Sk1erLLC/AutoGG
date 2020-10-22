@@ -53,7 +53,12 @@ public class AutoGGListener {
     public void worldSwap(WorldEvent.Load event) {
         invoked = false; // we can set it on Load since it always follows a load, unless the player disconnects
         Multithreading.schedule(() -> { // in which case it no longer matters
-            mineplex = mineplexPattern.matcher(AutoGG.getServerIP()).matches();
+            String ip = AutoGG.getServerIP();
+            if (ip == null) {
+                mineplex = false;
+            } else {
+                mineplex = mineplexPattern.matcher(ip).matches();
+            }
             String scoreboardTitle;
             try { // this always fails on mineplex but doesn't really matter ¯\_(ツ)_/¯
                 scoreboardTitle = EnumChatFormatting.getTextWithoutFormattingCodes(event.world.getScoreboard()
