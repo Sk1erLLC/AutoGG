@@ -24,7 +24,6 @@ import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.vigilance.data.Property;
-import com.typesafe.config.ConfigException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -33,9 +32,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -190,7 +186,7 @@ public class AutoGGListener {
             return AutoGGConfig.class.getDeclaredField("autoGGPhrase" + (second ? "2" : ""))
                 .getAnnotation(Property.class).options();
         } catch (NoSuchFieldException e) {
-            AutoGG.instance.getLogger().error("autoGGPhrase" + (second ? "2" : "") + " does not exist?????", e);
+            AutoGG.instance.getLogger().error("autoGGPhrase" + (second ? "2" : "") + " does not exist.", e);
             return new String[0];
         }
     }
