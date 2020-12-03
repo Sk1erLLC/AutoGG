@@ -30,7 +30,6 @@ import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -123,7 +122,6 @@ public class AutoGGCommand extends CommandBase {
 
                     break;
                 }
-
                 case "credits": {
                     MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
                         "AutoGG Originally created by 2Pi, continued by Sk1er LLC. " +
@@ -132,6 +130,10 @@ public class AutoGGCommand extends CommandBase {
                         "Additional special thanks to: LlamaLad7, FalseHonesty, DJTheRedstoner, " +
                         "Pluggs and Unextracted!");
                     break; // Lots of general help x3, General help, Getting antigg strings x2
+                }
+                case "toggle": {
+                    MinecraftUtils.sendMessage(prefix, (AutoGG.instance.getAutoGGConfig().toggle() ? "En" : "Dis") + "abled AutoGG.");
+                    break;
                 }
                 default: { // thank you asbyth!
                     ChatComponentText supportDiscordLink = new ChatComponentText(prefix + ChatColor.GREEN +
@@ -168,7 +170,6 @@ public class AutoGGCommand extends CommandBase {
         }
     }
 
-    @NotNull
     @Override
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
         return args.length == 1 ? getListOfStringsMatchingLastWord(args,
