@@ -113,6 +113,13 @@ public class AutoGGConfig extends Vigilant {
     )
     private int secondaryDelay = 1000;
 
+    public boolean toggle() {
+        autoGGEnabled = !autoGGEnabled;
+        markDirty(); // required since directly writing to vars
+        writeData();
+        return autoGGEnabled;
+    }
+
     public boolean isAutoGGEnabled() {
         return autoGGEnabled && AutoGG.instance.works();
     }

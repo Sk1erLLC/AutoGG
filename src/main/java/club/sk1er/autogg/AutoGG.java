@@ -174,17 +174,11 @@ public class AutoGG {
                 JsonObject data = triggerJson.get("servers").getAsJsonObject().get(a).getAsJsonObject();
                 for (String s : ggOptions) {
                     for (JsonElement j : data.get("gg_triggers").getAsJsonObject().get(s).getAsJsonArray()) {
-                        ggRegexes.get(s).add(Pattern.compile(j.toString().substring(1, j.toString().length() - 1)
-                                .replaceAll("\\\\{2}", "\\\\")));
-                        // for some reason, using \\<character> in json turns into \\<character> rather than
-                        // \<character> when compiled, i don't know why must be a quirk of json
+                        ggRegexes.get(s).add(Pattern.compile(j.getAsString()));
                     }
                 }
                 for (String s : otherPatternOptions) {
-                    String p = data.get("other_patterns").getAsJsonObject().get(s).toString();
-                    otherRegexes.put(s, Pattern.compile(p.substring(1, p.length() - 1)
-                            .replaceAll("\\\\{2}", "\\\\")
-                            // See above
+                    otherRegexes.put(s,Pattern.compile(data.get("other_patterns").getAsJsonObject().get(s).getAsString()
                             .replaceAll("(?<!\\\\)\\$\\{antigg_strings}",
                                     String.join("|", getAntiGGStrings()))
                     ));
@@ -218,8 +212,8 @@ public class AutoGG {
     //
     // Modifications: strip out everything that isn't the actual copying part and make it work on internal variables
     private static String[] getAntiGGStrings() {
-        String[] primaryStrings = AutoGGListener.getPrimaryStrings();
-        String[] secondaryStrings = AutoGGListener.getSecondaryStrings();
+        String[] primaryStrings = AutoGGListener.getStrings(false);
+        String[] secondaryStrings = AutoGGListener.getStrings(true);
         String[] joinedArray = (String[]) Array.newInstance(primaryStrings.getClass().getComponentType(), primaryStrings.length + secondaryStrings.length);
         System.arraycopy(primaryStrings, 0, joinedArray, 0, primaryStrings.length);
         System.arraycopy(secondaryStrings, 0, joinedArray, primaryStrings.length, secondaryStrings.length);

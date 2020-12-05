@@ -32,9 +32,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -52,7 +49,12 @@ public class AutoGGListener {
     public void worldSwap(WorldEvent.Load event) {
         invoked = false; // we can set it on Load since it always follows a load, unless the player disconnects
         Multithreading.schedule(() -> { // in which case it no longer matters
-            mineplex = mineplexPattern.matcher(AutoGG.getServerIP()).matches();
+            String ip = AutoGG.getServerIP();
+            if (ip == null) {
+                mineplex = false;
+            } else {
+                mineplex = mineplexPattern.matcher(ip).matches();
+            }
             String scoreboardTitle;
             try { // this always fails on mineplex but doesn't really matter ¯\_(ツ)_/¯
                 scoreboardTitle = EnumChatFormatting.getTextWithoutFormattingCodes(event.world.getScoreboard()
@@ -126,13 +128,13 @@ public class AutoGGListener {
         Multithreading.schedule(() -> {
             try {
                 Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                        AutoGG.other.get("msg") + getPrimaryString()
+                        AutoGG.other.get("msg") + getString(false)
                 );
                 if (AutoGG.instance.getAutoGGConfig().isSecondaryEnabled() && doSecond) {
                     Multithreading.schedule(() -> {
                         try {
                             Minecraft.getMinecraft().thePlayer.sendChatMessage(
-                                    AutoGG.other.get("msg") + getSecondString()
+                                    AutoGG.other.get("msg") + getString(true)
                             );
                         } catch (RuntimeException e) {
                             MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED +
@@ -179,50 +181,22 @@ public class AutoGGListener {
     }
 
     @NotNull
-    public static String[] getPrimaryStrings() {
+    public static String[] getStrings(boolean second) {
         try {
-            Property autoGGPhrase = AutoGGConfig.class.getDeclaredField("autoGGPhrase").getAnnotation(Property.class);
-            List<String> options = new ArrayList<>(Arrays.asList(autoGGPhrase.options()));
-            return options.toArray(new String[0]);
+            return AutoGGConfig.class.getDeclaredField("autoGGPhrase" + (second ? "2" : ""))
+                .getAnnotation(Property.class).options();
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-
-        return new String[0];
-    }
-
-    @NotNull
-    private String getPrimaryString() throws RuntimeException {
-        int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase();
-        String[] primaryStrings = getPrimaryStrings();
-        if (autoGGPhrase >= 0 && autoGGPhrase < primaryStrings.length) {
-            return primaryStrings[autoGGPhrase];
-        } else { // invalid config
-            throw new RuntimeException("An unknown error occurred parsing config. Try deleting " +
-                    ".minecraft/config/autogg.toml or contacting the mod authors.");
+            AutoGG.instance.getLogger().error("autoGGPhrase" + (second ? "2" : "") + " does not exist.", e);
+            return new String[0];
         }
     }
 
     @NotNull
-    public static String[] getSecondaryStrings() {
-        try {
-            Property autoGGPhrase = AutoGGConfig.class.getDeclaredField("autoGGPhrase2")
-                    .getAnnotation(Property.class);
-            List<String> options = new ArrayList<>(Arrays.asList(autoGGPhrase.options()));
-            return options.toArray(new String[0]);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-
-        return new String[0];
-    }
-
-    @NotNull
-    private String getSecondString() throws RuntimeException {
-        int autoGGPhrase = AutoGG.instance.getAutoGGConfig().getAutoGGPhrase2();
-        String[] primaryStrings = getSecondaryStrings();
-        if (autoGGPhrase >= 0 && autoGGPhrase < primaryStrings.length) {
-            return primaryStrings[autoGGPhrase];
+    public static String getString(boolean second) {
+        int phrase = second ? AutoGG.instance.getAutoGGConfig().getAutoGGPhrase2() : AutoGG.instance.getAutoGGConfig().getAutoGGPhrase();
+        String[] strings = getStrings(second);
+        if (phrase >= 0 && phrase < strings.length) {
+            return strings[phrase];
         } else { // invalid config
             throw new RuntimeException("An unknown error occurred parsing config. Try deleting " +
                     ".minecraft/config/autogg.toml or contacting the mod authors.");
