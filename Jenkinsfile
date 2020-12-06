@@ -7,7 +7,7 @@ pipeline {
     stage('Initialize') {
       steps {
         sh 'chmod +x ./gradlew'
-        sh "./gradlew preprocessResources"
+//         sh "./gradlew preprocessResources"
       }
     }
     stage('Build') {

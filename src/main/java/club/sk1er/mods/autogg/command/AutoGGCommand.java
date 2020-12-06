@@ -22,6 +22,7 @@ import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.listener.AutoGGListener;
 import club.sk1er.mods.core.ModCore;
 import club.sk1er.mods.core.universal.ChatColor;
+import club.sk1er.mods.core.util.GuiUtil;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -66,7 +67,7 @@ public class AutoGGCommand extends CommandBase {
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
         if (args.length == 0) {
-            ModCore.getInstance().getGuiHandler().open(AutoGG.instance.getAutoGGConfig().gui());
+            GuiUtil.open(AutoGG.instance.getAutoGGConfig().gui());
         } else {
             switch (args[0]) {
                 case "refresh": {
