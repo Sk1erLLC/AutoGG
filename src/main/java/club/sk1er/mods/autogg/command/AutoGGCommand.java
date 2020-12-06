@@ -20,8 +20,8 @@ package club.sk1er.mods.autogg.command;
 
 import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.listener.AutoGGListener;
-import club.sk1er.mods.core.ModCore;
 import club.sk1er.mods.core.universal.ChatColor;
+import club.sk1er.mods.core.util.GuiUtil;
 import club.sk1er.mods.core.util.MinecraftUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
@@ -41,9 +41,9 @@ import java.util.regex.Pattern;
 
 public class AutoGGCommand extends CommandBase {
 
-    private final String prefix = AutoGG.instance.getPrefix();
     private static final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd");
     private static final DateFormat LOCALE_FORMAT = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
+    private final String prefix = AutoGG.instance.getPrefix();
 
     private static Date parseDate(String date) {
         try {
@@ -66,7 +66,7 @@ public class AutoGGCommand extends CommandBase {
     @Override
     public void processCommand(ICommandSender sender, String[] args) {
         if (args.length == 0) {
-            ModCore.getInstance().getGuiHandler().open(AutoGG.instance.getAutoGGConfig().gui());
+            GuiUtil.open(AutoGG.instance.getAutoGGConfig().gui());
         } else {
             switch (args[0]) {
                 case "refresh": {
@@ -144,11 +144,11 @@ public class AutoGGCommand extends CommandBase {
                         new ChatComponentText("Click to join our support Discord.")));
 
                     ChatComponentText discordLink = new ChatComponentText(prefix + ChatColor.GREEN +
-                            "For the community server for all Sk1er mods, go to https://discord.gg/sk1er.");
+                        "For the community server for all Sk1er mods, go to https://discord.gg/sk1er.");
                     discordLink.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
-                            "https://discord.gg/sk1er"));
+                        "https://discord.gg/sk1er"));
                     discordLink.getChatStyle().setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            new ChatComponentText("Click to join our community Discord.")));
+                        new ChatComponentText("Click to join our community Discord.")));
 
 
                     ChatComponentText autoGGConfig = new ChatComponentText(prefix + ChatColor.GREEN +

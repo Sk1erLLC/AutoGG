@@ -60,7 +60,7 @@ buildscript {
     }
 }
 def kotlin_version = "1.3.72"
-
+def useMixin = false
 apply plugin: 'kotlin'
 
 repositories {
@@ -108,15 +108,17 @@ if (mcVersion >= 10800) {
     apply plugin: 'forge'
 }
 if (!FABRIC) {
-    ext {
-        mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
-        mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.autogg.refmap.json')
-    }
-
+    if (useMixin)
+        ext {
+            mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
+            mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.autogg.refmap.json')
+        }
+    if (useMixin)
     compileJava {
-        options.compilerArgs += [
-                "-AoutRefMapFile=${project.mixinRefMap.canonicalPath}",
-        ]
+
+            options.compilerArgs += [
+                    "-AoutRefMapFile=${project.mixinRefMap.canonicalPath}",
+            ]
         if (VANILLA) {
             options.compilerArgs += [
                     "-AoutNotchSrgFile=${project.mixinSrg.canonicalPath}",
@@ -370,7 +372,7 @@ if (FABRIC) {
     compileJava.dependsOn copySrg
 }
 
-if (FG2) {
+if (FG2 && useMixin) {
     if (mcVersion <= 10710) {
         reobf.addExtraSrgFile project.mixinSrg
     } else {
@@ -435,7 +437,7 @@ jar {
         )
 
     }
-    if (!FABRIC) {
+    if (!FABRIC && useMixin) {
         from files(project.mixinRefMap.canonicalPath)
         manifest {
 
@@ -459,7 +461,6 @@ compileKotlin {
 publishing {
     publications {
         maven(MavenPublication) {
-            artifactId = "autogg"
             artifactId = "autogg"
             version = "${this.properties.getOrDefault("branch", "master") != "master" ? this.properties.getOrDefault("branch", "master") + "-" : ""}${project.version}-$mcVersion${VANILLA ? "-vanilla" : ""}${this.properties.getOrDefault("IS_CI", false) ? "-SNAPSHOT" : ""}"
 
