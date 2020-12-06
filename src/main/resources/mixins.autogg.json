@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "compatibilityLevel": "JAVA_8",
+  "package": "club.sk1er.mods.autogg.mixins",
+  "refmap": "mixins.autogg.refmap.json",
+  "verbose": true,
+  "mixins": [
+    "CompatibilityMixin"
+  ]
+}

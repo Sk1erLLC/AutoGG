@@ -1,1 +1,0 @@
-<p>Automatically say a selected phrase after a game has ended on supported servers.</p>
