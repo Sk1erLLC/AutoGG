@@ -30,7 +30,6 @@ public class LaunchTweaker implements ITweaker {
         //#else
         //$$ version=net.minecraft.MinecraftVersion.create().getName()+"_fabric";
         //#endif
-        version += "_alpha";
         int initialize = ModCoreInstaller.initialize(gameDir, version);
         System.out.println("ModCore Init Status From AutoGG " + initialize);
     }
