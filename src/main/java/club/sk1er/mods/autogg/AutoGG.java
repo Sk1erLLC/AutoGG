@@ -21,10 +21,7 @@ package club.sk1er.mods.autogg;
 import club.sk1er.mods.autogg.command.AutoGGCommand;
 import club.sk1er.mods.autogg.config.AutoGGConfig;
 import club.sk1er.mods.autogg.listener.AutoGGListener;
-import club.sk1er.mods.autogg.tweaker.ModCoreInstaller;
 import club.sk1er.mods.core.universal.ChatColor;
-import club.sk1er.mods.core.util.MinecraftUtils;
-import club.sk1er.mods.core.util.Multithreading;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import net.minecraft.client.Minecraft;
@@ -33,6 +30,8 @@ import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.modcore.api.ModCoreAPI;
+import net.modcore.api.utils.Multithreading;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -96,7 +95,7 @@ public class AutoGG {
 
             } catch (IOException e) {
                 if (sendChatMsg) {
-                    MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
+                    ModCoreAPI.getMinecraftUtil().sendMessage(AutoGG.instance.prefix, ChatColor.RED +
                             "Unable to fetch triggers! Do you have an internet connection?");
                 }
 
@@ -105,7 +104,7 @@ public class AutoGG {
                 return;
             } catch (JsonSyntaxException e) {
                 if (sendChatMsg) {
-                    MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
+                    ModCoreAPI.getMinecraftUtil().sendMessage(AutoGG.instance.prefix, ChatColor.RED +
                             ChatColor.BOLD.toString() +
                             "JSON Syntax Error! Contact the mod authors at https://sk1er.club/support-discord if you see this message!");
                 }
@@ -116,7 +115,7 @@ public class AutoGG {
                 return;
             } catch (AssertionError | NullPointerException e) {
                 if (sendChatMsg) {
-                    MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.RED +
+                    ModCoreAPI.getMinecraftUtil().sendMessage(AutoGG.instance.prefix, ChatColor.RED +
                             "Unsupported triggers version! Please update AutoGG!");
                 }
 
@@ -126,7 +125,7 @@ public class AutoGG {
             }
 
             if (sendChatMsg) {
-                MinecraftUtils.sendMessage(AutoGG.instance.prefix, ChatColor.GREEN +
+                ModCoreAPI.getMinecraftUtil().sendMessage(AutoGG.instance.prefix, ChatColor.GREEN +
                         "Successfully fetched triggers!");
             }
         });

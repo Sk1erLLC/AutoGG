@@ -20,10 +20,7 @@ package club.sk1er.mods.autogg.command;
 
 import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.listener.AutoGGListener;
-import club.sk1er.mods.core.ModCore;
 import club.sk1er.mods.core.universal.ChatColor;
-import club.sk1er.mods.core.util.GuiUtil;
-import club.sk1er.mods.core.util.MinecraftUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
@@ -31,6 +28,8 @@ import net.minecraft.event.ClickEvent;
 import net.minecraft.event.HoverEvent;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.modcore.api.ModCoreAPI;
+import net.modcore.api.utils.GuiUtil;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -71,7 +70,7 @@ public class AutoGGCommand extends CommandBase {
         } else {
             switch (args[0]) {
                 case "refresh": {
-                    MinecraftUtils.sendMessage(prefix, ChatColor.YELLOW + "Fetching triggers...");
+                    ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.YELLOW + "Fetching triggers...");
                     AutoGG.downloadTriggers(true);
                     AutoGGListener.switchTriggerset();
                     break;
@@ -79,17 +78,17 @@ public class AutoGGCommand extends CommandBase {
                 case "triggers": {
                     for (String key : AutoGG.ggRegexes.keySet()) {
                         if (!AutoGG.ggRegexes.get(key).isEmpty()) {
-                            MinecraftUtils.sendMessage(prefix, ChatColor.AQUA +
+                            ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.AQUA +
                                 key.replaceAll("_", " ").toUpperCase(Locale.ENGLISH) + ":");
                             for (Pattern pattern : AutoGG.ggRegexes.get(key)) {
-                                MinecraftUtils.sendMessage("  ", pattern.toString());
+                                ModCoreAPI.getMinecraftUtil().sendMessage("  ", pattern.toString());
                             }
                         }
                     }
 
                     for (String key : AutoGG.otherRegexes.keySet()) {
                         if (!"$^".equals(AutoGG.otherRegexes.get(key).toString())) {
-                            MinecraftUtils.sendMessage(prefix, ChatColor.AQUA +
+                            ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.AQUA +
                                 key.replaceAll("_", " ").toUpperCase(Locale.ENGLISH) + ": " + ChatColor.RESET +
                                 AutoGG.otherRegexes.get(key));
                         }
@@ -98,25 +97,25 @@ public class AutoGGCommand extends CommandBase {
                     break;
                 }
                 case "info": {
-                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN + "Mod Version: " + AutoGG.VERSION);
+                    ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.GREEN + "Mod Version: " + AutoGG.VERSION);
                     try {
                         int triggersSize = AutoGG.ggRegexes.get("triggers").size();
                         int casualTriggersSize = AutoGG.ggRegexes.get("casual_triggers").size();
-                        MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
+                        ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.GREEN +
                             "Triggers Version: " +
                             AutoGG.triggerMeta.get("version").replaceAll("\"", ""));
-                        MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
+                        ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.GREEN +
                             "Triggers last updated on " +
                             LOCALE_FORMAT.format(parseDate(AutoGG.triggerMeta.get("upload_date")
                                 .replaceAll("\"", ""))));
-                        MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
+                        ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.GREEN +
                             "Triggers info message: " +
                             AutoGG.triggerMeta.get("note").replaceAll("\"", ""));
-                        MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
+                        ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.GREEN +
                             Integer.toString(triggersSize) + " Trigger" + (triggersSize == 1 ? "" : "s") + ", " + casualTriggersSize + " Casual Trigger" +
                             (casualTriggersSize == 1 ? "" : "s"));
                     } catch (NullPointerException e) {
-                        MinecraftUtils.sendMessage(prefix, ChatColor.RED +
+                        ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.RED +
                             "Could not get Trigger Meta! Were the triggers downloaded properly?");
                         AutoGG.instance.getLogger().error("Could not get trigger meta.", e);
                     }
@@ -124,16 +123,16 @@ public class AutoGGCommand extends CommandBase {
                     break;
                 }
                 case "credits": {
-                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
+                    ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.GREEN +
                         "AutoGG Originally created by 2Pi, continued by Sk1er LLC. " +
                         "Regex update & multi-server support by SirNapkin1334.");
-                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
+                    ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.GREEN +
                         "Additional special thanks to: LlamaLad7, FalseHonesty, DJTheRedstoner, " +
                         "Pluggs and Unextracted!");
                     break; // Lots of general help x3, General help, Getting antigg strings x2
                 }
                 case "toggle": {
-                    MinecraftUtils.sendMessage(prefix, (AutoGG.instance.getAutoGGConfig().toggle() ? "En" : "Dis") + "abled AutoGG.");
+                    ModCoreAPI.getMinecraftUtil().sendMessage(prefix, (AutoGG.instance.getAutoGGConfig().toggle() ? "En" : "Dis") + "abled AutoGG.");
                     break;
                 }
                 default: { // thank you asbyth!
@@ -162,7 +161,7 @@ public class AutoGGCommand extends CommandBase {
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(supportDiscordLink);
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(discordLink);
                     Minecraft.getMinecraft().thePlayer.addChatComponentMessage(autoGGConfig);
-                    MinecraftUtils.sendMessage(prefix, ChatColor.GREEN +
+                    ModCoreAPI.getMinecraftUtil().sendMessage(prefix, ChatColor.GREEN +
                         "AutoGG Commands: refresh, info, credits, help");
                     // help doesn't actually exist but that's our secret
                     break;

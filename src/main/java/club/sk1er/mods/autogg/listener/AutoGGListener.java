@@ -21,8 +21,6 @@ package club.sk1er.mods.autogg.listener;
 import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.config.AutoGGConfig;
 import club.sk1er.mods.core.universal.ChatColor;
-import club.sk1er.mods.core.util.MinecraftUtils;
-import club.sk1er.mods.core.util.Multithreading;
 import club.sk1er.vigilance.data.Property;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
@@ -30,6 +28,9 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.modcore.api.ModCoreAPI;
+import net.modcore.api.utils.MinecraftUtils;
+import net.modcore.api.utils.Multithreading;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
@@ -137,7 +138,7 @@ public class AutoGGListener {
                                     AutoGG.other.get("msg") + getString(true)
                             );
                         } catch (RuntimeException e) {
-                            MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED +
+                            ModCoreAPI.getMinecraftUtil().sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED +
                                     "An error occurred getting secondary string. Check logs for more information.");
                             AutoGG.instance.getLogger().error("Failed to get secondary string.", e);
                         } finally {
@@ -146,7 +147,7 @@ public class AutoGGListener {
                     }, AutoGG.instance.getAutoGGConfig().getSecondaryDelay() + 10 + (mineplex ? 590 : 0), TimeUnit.MILLISECONDS);
                 }
             } catch (RuntimeException e) {
-                MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED +
+                ModCoreAPI.getMinecraftUtil().sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED +
                         "An error occurred getting primary string. Check logs for more information.");
                 AutoGG.instance.getLogger().error("Failed to get primary string.", e);
             } catch (Exception e) {
@@ -161,7 +162,7 @@ public class AutoGGListener {
         AutoGG.instance.getDataFromDownloadedTriggers();
         Multithreading.schedule(() -> {
             if (!AutoGG.instance.works()) {
-                MinecraftUtils.sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED + "" + ChatColor.BOLD +
+                ModCoreAPI.getMinecraftUtil().sendMessage(AutoGG.instance.getPrefix(), ChatColor.RED + "" + ChatColor.BOLD +
                         (!AutoGG.validConfigVersion ?
                                 "WARNING! Unsupported AutoGG version! Please update AutoGG or it will not work!" :
                                 "Warning! Failed fetching triggers! Check your internet connection, and try running " +
