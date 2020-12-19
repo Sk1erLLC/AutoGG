@@ -60,6 +60,7 @@ buildscript {
     }
 }
 def kotlin_version = "1.3.72"
+def useMixin = false
 
 apply plugin: 'kotlin'
 
@@ -107,7 +108,7 @@ if (mcVersion >= 10800) {
 } else {
     apply plugin: 'forge'
 }
-if (!FABRIC) {
+if (!FABRIC && useMixin) {
     ext {
         mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
         mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.autogg.refmap.json')
@@ -319,7 +320,7 @@ dependencies {
     if (mcVersion == 11502) {
         minecraft 'net.minecraftforge:forge:1.15.2-31.1.18'
     }
-    if (!FABRIC) {
+    if (!FABRIC && useMixin) {
         annotationProcessor 'org.spongepowered:mixin:0.8'
         embed('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
             exclude module: 'launchwrapper'
@@ -369,7 +370,7 @@ if (FABRIC) {
     compileJava.dependsOn copySrg
 }
 
-if (FG2) {
+if (FG2 && useMixin) {
     if (mcVersion <= 10710) {
         reobf.addExtraSrgFile project.mixinSrg
     } else {
@@ -435,6 +436,7 @@ jar {
 
     }
     if (!FABRIC) {
+        if(useMixin)
         from files(project.mixinRefMap.canonicalPath)
         manifest {
 
