@@ -49,7 +49,10 @@ import java.util.regex.Pattern;
 
 @Mod(modid = "autogg", name = "AutoGG", version = AutoGG.VERSION)
 public class AutoGG {
-    public static final String VERSION = "4.0.3";
+    @Mod.Instance("autogg")
+    public static AutoGG instance;
+
+    public static final String VERSION = "4.1";
     private static final String[] ACCEPTED_CONFIG_VERSIONS = {"2"};
     public static boolean validConfigVersion, triggerFetchSuccess = true; // independent of config
     private final Logger logger = LogManager.getLogger("AutoGG");
@@ -64,15 +67,12 @@ public class AutoGG {
     private AutoGGConfig autoGGConfig;
     private boolean running;
 
-    @Mod.Instance("autogg")
-    public static AutoGG instance;
-
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         autoGGConfig = new AutoGGConfig();
         autoGGConfig.preload();
 
-        ClientCommandHandler.instance.registerCommand(new AutoGGCommand());
+        ModCoreAPI.getCommandRegistry().registerCommand(new AutoGGCommand());
         MinecraftForge.EVENT_BUS.register(new AutoGGListener());
 
         downloadTriggers(false);
@@ -218,15 +218,11 @@ public class AutoGG {
     }
 
     public static Set<String> keySet(JsonObject json) throws NullPointerException {
-        try { // some people don't have this function for some reason
-            return json.keySet();
-        } catch (NoSuchMethodError e) {
-            Set<String> keySet = new HashSet<>();
-            for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-                keySet.add(entry.getKey());
-            }
-            return keySet;
+        Set<String> keySet = new HashSet<>();
+        for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+            keySet.add(entry.getKey());
         }
+        return keySet;
     }
 
     @Nullable

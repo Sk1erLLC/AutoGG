@@ -36,6 +36,8 @@ buildscript {
             name = 'sponge'
             url = 'https://repo.spongepowered.org/maven'
         }
+        flatDir dirs: 'libs'
+
     }
 
     dependencies {
@@ -61,7 +63,6 @@ buildscript {
 }
 def kotlin_version = "1.3.72"
 def useMixin = false
-
 apply plugin: 'kotlin'
 
 repositories {
@@ -76,13 +77,6 @@ repositories {
     }
     maven { url 'https://jitpack.io' }
     maven { url "https://repo.sk1er.club/repository/maven-public" }
-    maven {
-        credentials {
-            username "$nexus_user"
-            password "$nexus_password"
-        }
-        url "https://repo.sk1er.club/repository/maven-private"
-    }
     maven {
         name = 'sponge'
         url = 'https://repo.spongepowered.org/maven'
@@ -111,7 +105,7 @@ if (mcVersion >= 10800) {
 if (!FABRIC && useMixin) {
     ext {
         mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
-        mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.autogg.refmap.json')
+        mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.patcher.refmap.json')
     }
 
     compileJava {
@@ -154,7 +148,6 @@ sourceCompatibility = targetCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
 minecraft {
     if (FABRIC) {
-        refmapName = 'mixins.autogg.refmap.json'
         refmapName = 'mixins.autogg.refmap.json'
         autoGenIDERuns = true
     }
@@ -208,7 +201,7 @@ minecraft {
                 property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
 
                 // Recommended logging level for the console
-                property 'forge.logging.console.level', 'debug'
+                property 'forge.logging.console.level', 'info'
 
                 mods {
                     examplemod {
@@ -224,7 +217,7 @@ minecraft {
                 property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
 
                 // Recommended logging level for the console
-                property 'forge.logging.console.level', 'debug'
+                property 'forge.logging.console.level', 'info'
 
                 mods {
                     examplemod {
@@ -240,7 +233,7 @@ minecraft {
                 property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
 
                 // Recommended logging level for the console
-                property 'forge.logging.console.level', 'debug'
+                property 'forge.logging.console.level', 'info'
 
                 args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/')
 
@@ -308,9 +301,8 @@ dependencies {
         ][mcVersion]
     }
 
-    implementation("club.sk1er:ModCore:627-${mcVersion}-SNAPSHOT")
-    embed("net.modcore:Loader:1.5")
-
+    embed ("net.modcore:Loader:2.0.0")
+    implementation "net.modcore:ModCore:776-${mcVersion}-SNAPSHOT"
 
     // FG already adds this even though it is not available at runtime, so we need to manually list it to bundle it
     if (VANILLA) {
@@ -322,7 +314,7 @@ dependencies {
     }
     if (!FABRIC && useMixin) {
         annotationProcessor 'org.spongepowered:mixin:0.8'
-        embed('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
+        implementation('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
             exclude module: 'launchwrapper'
             exclude module: 'guava'
             exclude module: 'gson'
@@ -425,43 +417,25 @@ jar {
         filesMatching("META-INF/NOTICE*") { name = "$name.${i++}" }
         filesMatching("META-INF/LICENSE*") { name = "$name.${i++}" }
         filesMatching("META-INF/mods.toml") { name = "$name.${i++}" }
+        filesMatching("LICENSE*") { name = "$name.${i++}" }
     }
 
     exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
-    manifest {
-        attributes(
-                "ModSide": "CLIENT",
-                "FMLCorePluginContainsFMLMod": "Yes, yes it does"
-        )
-
-    }
     if (!FABRIC) {
-        if(useMixin)
-        from files(project.mixinRefMap.canonicalPath)
-        manifest {
-
-            attributes(
-                    'FMLModType': 'LIBRARY',
-                    "TweakClass": "net.modcore.loader.ModCoreSetupTweaker",
-                    "TweakOrder": "0"
-            )
+        if (useMixin) {
+            from files(project.mixinRefMap.canonicalPath)
         }
-    }
-}
 
-compileKotlin {
-    kotlinOptions {
-        languageVersion = "1.4"
-        useIR = true
-        jvmTarget = "1.8"
+        manifest {
+            attributes "TweakClass": "net.modcore.loader.ModCoreSetupTweaker", "TweakOrder": "0"
+        }
     }
 }
 
 publishing {
     publications {
         maven(MavenPublication) {
-            artifactId = "autogg"
-            artifactId = "autogg"
+            artifactId = "AutoGG"
             version = "${this.properties.getOrDefault("branch", "master") != "master" ? this.properties.getOrDefault("branch", "master") + "-" : ""}${project.version}-$mcVersion${VANILLA ? "-vanilla" : ""}${this.properties.getOrDefault("IS_CI", false) ? "-SNAPSHOT" : ""}"
 
             pom.withXml {
