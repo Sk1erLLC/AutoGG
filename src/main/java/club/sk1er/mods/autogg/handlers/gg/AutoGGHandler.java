@@ -10,8 +10,6 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.modcore.api.utils.Multithreading;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Where the magic happens...
  * We handle which server's triggers should be used
@@ -25,20 +23,22 @@ public class AutoGGHandler {
     private Server server;
 
     @SubscribeEvent
-    public void onWorldLoad(EntityJoinWorldEvent event) {
+    public void onEntityJoinWorld(EntityJoinWorldEvent event) {
         if (event.entity instanceof EntityPlayerSP) {
-            if (AutoGG.INSTANCE.getAutoGGConfig().isModEnabled()) {
-                Multithreading.schedule(() -> {
-                    for (Server s : AutoGG.INSTANCE.getTriggers().getServers()) {
-                        if (server.getHandler().getDetector().detect(s.getDetector(), (EntityPlayerSP) event.entity)) {
-                            server = s;
-                            return;
+            if (Minecraft.getMinecraft().thePlayer != null) {
+                if (AutoGG.INSTANCE.getAutoGGConfig().isModEnabled()) {
+                    Multithreading.runAsync(() -> {
+                        for (Server s : AutoGG.INSTANCE.getTriggers().getServers()) {
+                            if (s.getHandler().getDetector().detect(s.getDetector())) {
+                                server = s;
+                                return;
+                            }
                         }
-                    }
 
-                    // In case if it's not null and we couldn't find the triggers for the current server.
-                    server = null;
-                }, 300, TimeUnit.MILLISECONDS);
+                        // In case if it's not null and we couldn't find the triggers for the current server.
+                        server = null;
+                    });
+                }
             }
         }
     }

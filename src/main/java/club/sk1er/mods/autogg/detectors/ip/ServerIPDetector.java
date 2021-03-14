@@ -7,7 +7,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 
 public class ServerIPDetector implements IDetector {
     @Override
-    public boolean detect(String detector, EntityPlayerSP player) {
+    public boolean detect(String detector) {
         return PatternHandler.INSTANCE.getPattern(detector).matcher(Minecraft.getMinecraft().getCurrentServerData().serverIP).matches();
     }
 }
