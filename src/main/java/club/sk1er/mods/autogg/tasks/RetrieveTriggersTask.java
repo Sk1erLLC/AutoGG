@@ -3,6 +3,7 @@ package club.sk1er.mods.autogg.tasks;
 import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.handlers.patterns.PatternHandler;
 import club.sk1er.mods.autogg.tasks.data.Server;
+import club.sk1er.mods.autogg.tasks.data.Trigger;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import com.google.gson.Gson;
 import net.minecraft.util.HttpUtil;
@@ -46,25 +47,17 @@ public class RetrieveTriggersTask implements Runnable {
         }
 
         LOGGER.info("Registering patterns...");
+        List<String> joined = new ArrayList<>();
+        joined.addAll(Arrays.asList(AutoGG.INSTANCE.getPrimaryGGStrings()));
+        joined.addAll(Arrays.asList(AutoGG.INSTANCE.getSecondaryGGStrings()));
 
         for (Server server : AutoGG.INSTANCE.getTriggers().getServers()) {
-            for (String trigger : server.getTriggers()) {
-                PatternHandler.INSTANCE.registerPattern(trigger);
-            }
-
-            for (String trigger : server.getCasualTriggers()) {
-                PatternHandler.INSTANCE.registerPattern(trigger);
-            }
-
-            if (server.getAntiGGTrigger() != null) {
-                List<String> joined = new ArrayList<>();
-                joined.addAll(Arrays.asList(AutoGG.INSTANCE.getPrimaryGGStrings()));
-                joined.addAll(Arrays.asList(AutoGG.INSTANCE.getSecondaryGGStrings()));
-                PatternHandler.INSTANCE.registerPattern(server.getAntiGGTrigger().replace("${antigg_strings}", String.join("|", joined)));
-            }
-
-            if (server.getAntiKarmaTrigger() != null) {
-                PatternHandler.INSTANCE.registerPattern(server.getAntiKarmaTrigger());
+            for (Trigger trigger : server.getTriggers()) {
+                String pattern = trigger.getPattern();
+                if (trigger.getType() == 2) {
+                    pattern = pattern.replace("${antigg_strings}", String.join("|", joined));
+                }
+                PatternHandler.INSTANCE.registerPattern(pattern);
             }
         }
     }

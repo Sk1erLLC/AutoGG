@@ -6,7 +6,7 @@ import net.minecraft.client.Minecraft;
 
 public class ServerBrandingDetector implements IDetector {
     @Override
-    public boolean detect(String detector) {
-        return PatternHandler.INSTANCE.getPattern(detector).matcher(Minecraft.getMinecraft().thePlayer.getClientBrand()).matches();
+    public boolean detect(String data) {
+        return PatternHandler.INSTANCE.getPattern(data).matcher(Minecraft.getMinecraft().thePlayer.getClientBrand()).matches();
     }
 }
