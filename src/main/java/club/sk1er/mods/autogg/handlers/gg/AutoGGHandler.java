@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class AutoGGHandler {
-    private Server server;
+    private volatile Server server;
 
     @SubscribeEvent
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
