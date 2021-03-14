@@ -9,69 +9,69 @@ import java.io.File;
 @SuppressWarnings("FieldMayBeFinal")
 public class AutoGGConfig extends Vigilant {
     @Property(
-        type = PropertyType.SWITCH, name = "AutoGG",
-        description = "Entirely toggles AutoGG",
-        category = "General", subcategory = "General"
+            type = PropertyType.SWITCH, name = "AutoGG",
+            description = "Entirely toggles AutoGG",
+            category = "General", subcategory = "General"
     )
     private boolean autoGGEnabled = true;
 
     @Property(
-        type = PropertyType.SWITCH, name = "Casual AutoGG",
-        description = "Enable AutoGG for things that don't give Karma such as Skyblock Events.",
-        category = "General", subcategory = "General"
+            type = PropertyType.SWITCH, name = "Casual AutoGG",
+            description = "Enable AutoGG for things that don't give Karma such as Skyblock Events.",
+            category = "General", subcategory = "General"
     )
     private boolean casualAutoGGEnabled;
 
     @Property(
-        type = PropertyType.SWITCH, name = "Anti GG",
-        description = "Remove GG messages from chat.",
-        category = "General", subcategory = "Miscellaneous"
+            type = PropertyType.SWITCH, name = "Anti GG",
+            description = "Remove GG messages from chat.",
+            category = "General", subcategory = "Miscellaneous"
     )
     private boolean antiGGEnabled;
 
     @Property(
-        type = PropertyType.SWITCH, name = "Anti Karma",
-        description = "Remove Karma messages from chat.",
-        category = "General", subcategory = "Miscellaneous"
+            type = PropertyType.SWITCH, name = "Anti Karma",
+            description = "Remove Karma messages from chat.",
+            category = "General", subcategory = "Miscellaneous"
     )
     private boolean antiKarmaEnabled;
 
     @Property(
-        type = PropertyType.SLIDER, name = "Delay",
-        description = "Delay after the game ends to say the message.\n§eMeasured in milliseconds.",
-        category = "General", subcategory = "General",
-        max = 5000
+            type = PropertyType.SLIDER, name = "Delay",
+            description = "Delay after the game ends to say the message.\n§eMeasured in milliseconds.",
+            category = "General", subcategory = "General",
+            max = 5000
     )
     private int autoGGDelay = 1000;
 
     @Property(
-        type = PropertyType.SELECTOR, name = "Phrase",
-        description = "Choose what message is said on game completion.",
-        category = "General", subcategory = "General",
-        options = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"}
+            type = PropertyType.SELECTOR, name = "Phrase",
+            description = "Choose what message is said on game completion.",
+            category = "General", subcategory = "General",
+            options = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"}
     )
     private int autoGGPhrase = 0;
 
     @Property(
-        type = PropertyType.SWITCH, name = "Second Message",
-        description = "Enable a secondary message to send after your first GG.",
-        category = "General", subcategory = "Secondary Message"
+            type = PropertyType.SWITCH, name = "Second Message",
+            description = "Enable a secondary message to send after your first GG.",
+            category = "General", subcategory = "Secondary Message"
     )
     private boolean secondaryEnabled;
 
     @Property(
-        type = PropertyType.SELECTOR, name = "Phrase",
-        description = "Send a secondary message sent after the first GG message.",
-        category = "General", subcategory = "Secondary Message",
-        options = {"Have a good day!", "<3", "AutoGG By Sk1er!"}
+            type = PropertyType.SELECTOR, name = "Phrase",
+            description = "Send a secondary message sent after the first GG message.",
+            category = "General", subcategory = "Secondary Message",
+            options = {"Have a good day!", "<3", "AutoGG By Sk1er!"}
     )
     private int autoGGPhrase2 = 0;
 
     @Property(
-        type = PropertyType.SLIDER, name = "Second Message Delay",
-        description = "Delay between the first & second end of game messages.\n§eMeasured in milliseconds.",
-        category = "General", subcategory = "Secondary Message",
-        max = 5000
+            type = PropertyType.SLIDER, name = "Second Message Delay",
+            description = "Delay between the first & second end of game messages.\n§eMeasured in milliseconds.",
+            category = "General", subcategory = "Secondary Message",
+            max = 5000
     )
     private int secondaryDelay = 1000;
 

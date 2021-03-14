@@ -21,7 +21,7 @@ package club.sk1er.mods.autogg;
 import club.sk1er.mods.autogg.command.AutoGGCommand;
 import club.sk1er.mods.autogg.config.AutoGGConfig;
 import club.sk1er.mods.autogg.handlers.gg.AutoGGHandler;
-import club.sk1er.mods.autogg.tasks.DownloadTriggersTask;
+import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -44,14 +44,10 @@ public class AutoGG {
     public static AutoGG INSTANCE;
 
     private final Logger LOGGER = LogManager.getLogger(this);
-
-    private TriggersSchema triggers;
-
-    private AutoGGConfig autoGGConfig;
-
     private final String[] primaryGGStrings = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"};
-
     private final String[] secondaryGGStrings = {"Have a good day!", "<3", "AutoGG By Sk1er!"};
+    private TriggersSchema triggers;
+    private AutoGGConfig autoGGConfig;
 
     @Mod.EventHandler
     public void onFMLInitialization(FMLInitializationEvent event) {
@@ -61,7 +57,7 @@ public class AutoGG {
         autoGGConfig = new AutoGGConfig();
 
         LOGGER.info("Fetching triggers...");
-        Multithreading.runAsync(new DownloadTriggersTask());
+        Multithreading.runAsync(new RetrieveTriggersTask());
 
         LOGGER.info("Registering chat handler...");
         MinecraftForge.EVENT_BUS.register(new AutoGGHandler());

@@ -21,7 +21,7 @@ import java.util.List;
  * @author ChachyDev
  */
 
-public class DownloadTriggersTask implements Runnable {
+public class RetrieveTriggersTask implements Runnable {
 
     private final Logger LOGGER = LogManager.getLogger(this);
 
@@ -36,7 +36,7 @@ public class DownloadTriggersTask implements Runnable {
     @Override
     public void run() {
         try {
-            String AUTOGG_TRIGGERS_URL = "https://gist.githubusercontent.com/ChachyDev/645f67de6cad549a9d3c26af0779d53b/raw/1b488703c919dc53041f56604e91033f2d39a9bb/new_new_triggers.json";
+            String AUTOGG_TRIGGERS_URL = "https://gist.githubusercontent.com/ChachyDev/645f67de6cad549a9d3c26af0779d53b/raw/b30a95fad66cc3f1b88f6b08d88144917d5cc27f/new_new_triggers.json";
             AutoGG.INSTANCE.setTriggers(gson.fromJson(HttpUtil.get(new URL(AUTOGG_TRIGGERS_URL)), TriggersSchema.class));
         } catch (IOException e) {
             // To stop maniac in the event of the triggers being failed to reach we just create an empty TriggerSchema.

@@ -14,11 +14,13 @@ public class PatternHandler {
     public static PatternHandler INSTANCE = new PatternHandler();
     private final List<Pattern> patterns = new ArrayList<>();
 
-    public void registerPattern(String pattern) {
+    public Pattern registerPattern(String pattern) {
         Pattern p = Pattern.compile(pattern);
         if (!patterns.contains(p)) {
             patterns.add(p);
         }
+
+        return p;
     }
 
     public Pattern getPattern(String pattern) {
@@ -28,9 +30,7 @@ public class PatternHandler {
             }
         }
 
-        Pattern compiled = Pattern.compile(pattern);
-        patterns.add(compiled);
-        return compiled;
+        return registerPattern(pattern);
     }
 
     public void clearPatterns() {
