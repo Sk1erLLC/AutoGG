@@ -4,9 +4,11 @@ import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.handlers.patterns.PatternHandler;
 import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.Trigger;
+import club.sk1er.mods.autogg.tasks.data.TriggerType;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import com.google.gson.Gson;
 import net.minecraft.util.HttpUtil;
+import net.modcore.api.utils.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,9 +39,9 @@ public class RetrieveTriggersTask implements Runnable {
     @Override
     public void run() {
         try {
-            String AUTOGG_TRIGGERS_URL = "TRIGGERS_URL_HERE";
-            AutoGG.INSTANCE.setTriggers(gson.fromJson(HttpUtil.get(new URL(AUTOGG_TRIGGERS_URL)), TriggersSchema.class));
-        } catch (IOException e) {
+            String AUTOGG_TRIGGERS_URL = "TRIGGERS_URL";
+            AutoGG.INSTANCE.setTriggers(gson.fromJson(WebUtil.fetchString(AUTOGG_TRIGGERS_URL), TriggersSchema.class));
+        } catch (Exception e) {
             // To stop maniac in the event of the triggers being failed to reach we just create an empty TriggerSchema.
             LOGGER.error("Failed to fetch the AutoGG triggers! This isn't good...", e);
             AutoGG.INSTANCE.setTriggers(new TriggersSchema(new Server[0]));
@@ -54,7 +56,7 @@ public class RetrieveTriggersTask implements Runnable {
         for (Server server : AutoGG.INSTANCE.getTriggers().getServers()) {
             for (Trigger trigger : server.getTriggers()) {
                 String pattern = trigger.getPattern();
-                if (trigger.getType() == 2) {
+                if (trigger.getType() == TriggerType.ANTI_GG) {
                     pattern = pattern.replace("${antigg_strings}", String.join("|", joined));
                 }
                 PatternHandler.INSTANCE.registerPattern(pattern);

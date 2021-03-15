@@ -17,13 +17,16 @@ public class Trigger {
 
     private final String pattern;
 
+    private TriggerType triggerType;
+
     public Trigger(int type, String pattern) {
         this.type = type;
         this.pattern = pattern;
     }
 
-    public int getType() {
-        return type;
+    public TriggerType getType() {
+        if (triggerType == null) triggerType = TriggerType.getByType(type);
+        return triggerType;
     }
 
     public String getPattern() {

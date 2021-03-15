@@ -4,6 +4,7 @@ import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.handlers.patterns.PatternHandler;
 import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.Trigger;
+import club.sk1er.mods.autogg.tasks.data.TriggerType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -47,7 +48,7 @@ public class AutoGGHandler {
         if (AutoGG.INSTANCE.getAutoGGConfig().isModEnabled()) {
             if (server != null) {
                 for (Trigger trigger : server.getTriggers()) {
-                    if (trigger.getType() == 2) {
+                    if (trigger.getType() == TriggerType.ANTI_GG) {
                         // Anti-GG feature
                         if (AutoGG.INSTANCE.getAutoGGConfig().isAntiGGEnabled()) {
                             if (PatternHandler.INSTANCE.getPattern(trigger.getPattern()).matcher(event.message.getUnformattedText()).matches()) {
@@ -57,7 +58,7 @@ public class AutoGGHandler {
                         }
                     }
 
-                    if (trigger.getType() == 3) {
+                    if (trigger.getType() == TriggerType.ANTI_KARMA) {
                         // Anti Karma feature
                         if (AutoGG.INSTANCE.getAutoGGConfig().isAntiKarmaEnabled()) {
                             if (PatternHandler.INSTANCE.getPattern(trigger.getPattern()).matcher(event.message.getUnformattedText()).matches()) {
@@ -72,7 +73,7 @@ public class AutoGGHandler {
                     String chatMessage = event.message.getUnformattedText();
                     // Casual GG feature
                     for (Trigger trigger : server.getTriggers()) {
-                        if (trigger.getType() == 1) {
+                        if (trigger.getType() == TriggerType.CASUAL) {
                             if (AutoGG.INSTANCE.getAutoGGConfig().isCasualAutoGGEnabled()) {
                                 if (PatternHandler.INSTANCE.getPattern(trigger.getPattern()).matcher(chatMessage).matches()) {
                                     invokeGG();
@@ -81,7 +82,7 @@ public class AutoGGHandler {
                             }
                         }
 
-                        if (trigger.getType() == 0) {
+                        if (trigger.getType() == TriggerType.NORMAL) {
                             if (PatternHandler.INSTANCE.getPattern(trigger.getPattern()).matcher(chatMessage).matches()) {
                                 invokeGG();
                                 return;
