@@ -2,7 +2,7 @@ package club.sk1er.mods.autogg.tasks.data;
 
 /**
  * Data holder for a trigger in the server triggers JsonArray
- *
+ * <p>
  * Trigger types:
  * 0 = Normal
  * 1 = Casual
