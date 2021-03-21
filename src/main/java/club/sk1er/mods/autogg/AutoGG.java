@@ -26,6 +26,7 @@ import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.modcore.api.ModCoreAPI;
 import net.modcore.api.utils.Multithreading;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,19 +52,14 @@ public class AutoGG {
 
     @Mod.EventHandler
     public void onFMLInitialization(FMLInitializationEvent event) {
-        LOGGER.info("Starting AutoGG " + VERSION);
-
-        LOGGER.info("Initializing AutoGG Config...");
         autoGGConfig = new AutoGGConfig();
+        autoGGConfig.preload();
 
-        LOGGER.info("Fetching triggers...");
         Multithreading.runAsync(new RetrieveTriggersTask());
 
-        LOGGER.info("Registering chat handler...");
         MinecraftForge.EVENT_BUS.register(new AutoGGHandler());
 
-        LOGGER.info("Registering command...");
-        new AutoGGCommand().register();
+        ModCoreAPI.getCommandRegistry().registerCommand(new AutoGGCommand());
     }
 
     public TriggersSchema getTriggers() {

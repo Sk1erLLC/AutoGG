@@ -4,13 +4,14 @@ import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
 import club.sk1er.mods.core.universal.ChatColor;
 import club.sk1er.mods.core.universal.wrappers.message.UTextComponent;
-import net.minecraft.client.gui.GuiScreen;
 import net.modcore.api.ModCoreAPI;
 import net.modcore.api.commands.Command;
 import net.modcore.api.commands.DefaultHandler;
 import net.modcore.api.commands.SubCommand;
 import net.modcore.api.utils.GuiUtil;
 import net.modcore.api.utils.Multithreading;
+
+import java.util.Objects;
 
 public class AutoGGCommand extends Command {
     public AutoGGCommand() {
@@ -19,10 +20,7 @@ public class AutoGGCommand extends Command {
 
     @DefaultHandler
     public void handle() {
-        GuiScreen gui = AutoGG.INSTANCE.getAutoGGConfig().gui();
-        if (gui != null) {
-            GuiUtil.open(gui);
-        }
+        GuiUtil.open(Objects.requireNonNull(AutoGG.INSTANCE.getAutoGGConfig().gui()));
     }
 
     @SubCommand(value = "refresh", description = "Refreshes your loaded triggers.")
