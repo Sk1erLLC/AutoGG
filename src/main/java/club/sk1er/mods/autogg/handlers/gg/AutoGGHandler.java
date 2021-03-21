@@ -27,7 +27,7 @@ public class AutoGGHandler {
 
     @SubscribeEvent
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
-        if (event.entity instanceof EntityPlayerSP && AutoGG.INSTANCE.getAutoGGConfig().isModEnabled()) {
+        if (event.entity == Minecraft.getMinecraft().thePlayer && AutoGG.INSTANCE.getAutoGGConfig().isModEnabled()) {
             Multithreading.runAsync(() -> {
                 for (Server s : AutoGG.INSTANCE.getTriggers().getServers()) {
                     if (s.getDetectionHandler().getDetector().detect(s.getData())) {
