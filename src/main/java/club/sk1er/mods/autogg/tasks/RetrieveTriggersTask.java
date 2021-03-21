@@ -36,7 +36,7 @@ public class RetrieveTriggersTask implements Runnable {
     @Override
     public void run() {
         try {
-            String AUTOGG_TRIGGERS_URL = "TRIGGERS_URL";
+            String AUTOGG_TRIGGERS_URL = "https://gist.githubusercontent.com/ChachyDev/645f67de6cad549a9d3c26af0779d53b/raw/34d90bc3dc8f584d4c2397feb620845682ca3014/new_new_triggers.json";
             AutoGG.INSTANCE.setTriggers(gson.fromJson(WebUtil.fetchString(AUTOGG_TRIGGERS_URL), TriggersSchema.class));
         } catch (Exception e) {
             // To stop maniac in the event of the triggers being failed to reach we just create an empty TriggerSchema.

@@ -30,9 +30,13 @@ public class AutoGGHandler {
         if (event.entity == Minecraft.getMinecraft().thePlayer && AutoGG.INSTANCE.getAutoGGConfig().isModEnabled()) {
             Multithreading.runAsync(() -> {
                 for (Server s : AutoGG.INSTANCE.getTriggers().getServers()) {
-                    if (s.getDetectionHandler().getDetector().detect(s.getData())) {
-                        server = s;
-                        return;
+                    try {
+                        if (s.getDetectionHandler().getDetector().detect(s.getData())) {
+                            server = s;
+                            return;
+                        }
+                    } catch (Throwable e) {
+                        // Stop log spam
                     }
                 }
 

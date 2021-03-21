@@ -76,7 +76,7 @@ public class AutoGGConfig extends Vigilant {
     private int secondaryDelay = 1000;
 
     public AutoGGConfig() {
-        super(new File(".config/autogg.toml"));
+        super(new File("./config/autogg.toml"));
         initialize();
     }
 
