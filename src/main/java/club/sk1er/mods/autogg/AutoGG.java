@@ -23,32 +23,39 @@ import club.sk1er.mods.autogg.config.AutoGGConfig;
 import club.sk1er.mods.autogg.handlers.gg.AutoGGHandler;
 import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.modcore.api.ModCoreAPI;
+import net.modcore.api.utils.JsonHolder;
 import net.modcore.api.utils.Multithreading;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.modcore.api.utils.WebUtil;
 
 /**
  * Contains the main class for AutoGG which handles trigger schema setting/getting and the main initialization code.
  *
  * @author ChachyDev
  */
-
-@Mod(modid = "autogg", name = "AutoGG", version = AutoGG.VERSION)
+@Mod(modid = "autogg", name = "AutoGG", version = "4.2")
 public class AutoGG {
-    public static final String VERSION = "4.2";
 
     @Mod.Instance
     public static AutoGG INSTANCE;
 
-    private final Logger LOGGER = LogManager.getLogger(this);
     private final String[] primaryGGStrings = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"};
     private final String[] secondaryGGStrings = {"Have a good day!", "<3", "AutoGG By Sk1er!"};
     private TriggersSchema triggers;
     private AutoGGConfig autoGGConfig;
+
+    private boolean usingEnglish;
+
+    @Mod.EventHandler
+    public void onFMLPreInitialization(FMLPreInitializationEvent event) {
+        Multithreading.runAsync(this::checkUserLanguage);
+    }
 
     @Mod.EventHandler
     public void onFMLInitialization(FMLInitializationEvent event) {
@@ -56,10 +63,36 @@ public class AutoGG {
         autoGGConfig.preload();
 
         Multithreading.runAsync(new RetrieveTriggersTask());
-
         MinecraftForge.EVENT_BUS.register(new AutoGGHandler());
-
         ModCoreAPI.getCommandRegistry().registerCommand(new AutoGGCommand());
+
+        // fix settings that were moved to seconds instead of ms
+        // so users aren't waiting 5000 seconds to send GG
+        if (autoGGConfig.getAutoGGDelay() > 5) {
+            autoGGConfig.setAutoGGDelay(1);
+        }
+
+        if (autoGGConfig.getSecondaryDelay() > 5) {
+            autoGGConfig.setSecondaryDelay(1);
+        }
+    }
+
+    @Mod.EventHandler
+    public void loadComplete(FMLLoadCompleteEvent event) {
+        if (!usingEnglish) {
+            ModCoreAPI.getNotifications().push(
+                "AutoGG",
+                "We've detected your Hypixel language isn't set to English! AutoGG will not work on other languages.\n" +
+                    "If this is a mistake, feel free to ignore it.", 6
+            );
+        }
+    }
+
+    private void checkUserLanguage() {
+        final String username = Minecraft.getMinecraft().getSession().getUsername();
+        final JsonHolder json = WebUtil.fetchJSON("https://api.sk1er.club/player/" + username);
+        final String language = json.optJSONObject("player").defaultOptString("userLanguage", "ENGLISH");
+        this.usingEnglish = "ENGLISH".equals(language);
     }
 
     public TriggersSchema getTriggers() {
@@ -80,5 +113,9 @@ public class AutoGG {
 
     public String[] getSecondaryGGStrings() {
         return secondaryGGStrings;
+    }
+
+    public boolean isUsingEnglish() {
+        return usingEnglish;
     }
 }

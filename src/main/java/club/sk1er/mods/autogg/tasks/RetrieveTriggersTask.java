@@ -20,24 +20,21 @@ import java.util.List;
  *
  * @author ChachyDev
  */
-
 public class RetrieveTriggersTask implements Runnable {
 
     private final Logger LOGGER = LogManager.getLogger(this);
-
     private final Gson gson = new Gson();
+    private static final String TRIGGERS_URL = "https://static.sk1er.club/autogg/regex_triggers_3.json";
 
     /**
      * Runs a task which fetches the triggers JSON from the internet.
      *
      * @author ChachyDev
      */
-
     @Override
     public void run() {
         try {
-            String AUTOGG_TRIGGERS_URL = "TRIGGERS_URL";
-            AutoGG.INSTANCE.setTriggers(gson.fromJson(WebUtil.fetchString(AUTOGG_TRIGGERS_URL), TriggersSchema.class));
+            AutoGG.INSTANCE.setTriggers(gson.fromJson(WebUtil.fetchString(TRIGGERS_URL), TriggersSchema.class));
         } catch (Exception e) {
             // To stop maniac in the event of the triggers being failed to reach we just create an empty TriggerSchema.
             LOGGER.error("Failed to fetch the AutoGG triggers! This isn't good...", e);

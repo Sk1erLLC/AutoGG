@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
  *
  * @author ChachyDev
  */
-
 public class PatternHandler {
     public static PatternHandler INSTANCE = new PatternHandler();
     private final List<Pattern> patterns = new ArrayList<>();

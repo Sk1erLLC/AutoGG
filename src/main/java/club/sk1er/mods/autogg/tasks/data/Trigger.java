@@ -2,16 +2,8 @@ package club.sk1er.mods.autogg.tasks.data;
 
 /**
  * Data holder for a trigger in the server triggers JsonArray
- * <p>
- * Trigger types:
- * 0 = Normal
- * 1 = Casual
- * 2 = AntiGG
- * 3 = AntiKarma
- *
  * @author ChachyDev
  */
-
 public class Trigger {
     private final int type;
 

@@ -38,11 +38,11 @@ public class AutoGGConfig extends Vigilant {
 
     @Property(
         type = PropertyType.SLIDER, name = "Delay",
-        description = "Delay after the game ends to say the message.\n§eMeasured in milliseconds.",
+        description = "Delay after the game ends to say the message.\n§eMeasured in seconds.",
         category = "General", subcategory = "General",
-        max = 5000
+        max = 5
     )
-    private int autoGGDelay = 1000;
+    private int autoGGDelay = 1;
 
     @Property(
         type = PropertyType.SELECTOR, name = "Phrase",
@@ -69,11 +69,11 @@ public class AutoGGConfig extends Vigilant {
 
     @Property(
         type = PropertyType.SLIDER, name = "Second Message Delay",
-        description = "Delay between the first & second end of game messages.\n§eMeasured in milliseconds.",
+        description = "Delay between the first & second end of game messages.\n§eMeasured in seconds.",
         category = "General", subcategory = "Secondary Message",
-        max = 5000
+        max = 5
     )
-    private int secondaryDelay = 1000;
+    private int secondaryDelay = 1;
 
     public AutoGGConfig() {
         super(new File("./config/autogg.toml"));
@@ -114,5 +114,13 @@ public class AutoGGConfig extends Vigilant {
 
     public int getSecondaryDelay() {
         return secondaryDelay;
+    }
+
+    public void setAutoGGDelay(int autoGGDelay) {
+        this.autoGGDelay = autoGGDelay;
+    }
+
+    public void setSecondaryDelay(int secondaryDelay) {
+        this.secondaryDelay = secondaryDelay;
     }
 }
