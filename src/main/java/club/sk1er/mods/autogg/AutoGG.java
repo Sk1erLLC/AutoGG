@@ -68,13 +68,8 @@ public class AutoGG {
 
         // fix settings that were moved to seconds instead of ms
         // so users aren't waiting 5000 seconds to send GG
-        if (autoGGConfig.getAutoGGDelay() > 5) {
-            autoGGConfig.setAutoGGDelay(1);
-        }
-
-        if (autoGGConfig.getSecondaryDelay() > 5) {
-            autoGGConfig.setSecondaryDelay(1);
-        }
+        if (autoGGConfig.getAutoGGDelay() > 5) autoGGConfig.setAutoGGDelay(1);
+        if (autoGGConfig.getSecondaryDelay() > 5) autoGGConfig.setSecondaryDelay(1);
     }
 
     @Mod.EventHandler
@@ -113,9 +108,5 @@ public class AutoGG {
 
     public String[] getSecondaryGGStrings() {
         return secondaryGGStrings;
-    }
-
-    public boolean isUsingEnglish() {
-        return usingEnglish;
     }
 }

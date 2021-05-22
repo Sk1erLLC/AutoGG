@@ -12,30 +12,13 @@ buildscript {
     project.ext.forge = forge
 
     repositories {
-        jcenter()
         mavenCentral()
-        maven {
-            name = "fabric"
-            url = "https://maven.fabricmc.net/"
-        }
-        if (!fabric) {
-            maven {
-                name = "forge"
-                url = "https://files.minecraftforge.net/maven"
-            }
-        }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
+        maven { url "https://maven.fabricmc.net/" }
+        if (!fabric) maven { url "https://files.minecraftforge.net/maven" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url 'https://jitpack.io' }
-        maven {
-            url = "https://repo.sk1er.club/repository/maven-public"
-        }
-        maven {
-            name = 'sponge'
-            url = 'https://repo.spongepowered.org/maven'
-        }
+        maven { url "https://repo.sk1er.club/repository/maven-public" }
+        maven { url 'https://repo.spongepowered.org/maven' }
     }
 
     dependencies {
@@ -49,36 +32,32 @@ buildscript {
         } else if (mcVersion >= 10800) {
             classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
             classpath('com.github.ReplayMod:ForgeGradle:' + (
-                    mcVersion >= 11200 ? '2817481' : // FG 2.3
-                            mcVersion >= 10904 ? '5bb7a53' : // FG 2.2
-                                    'dcfe5a56'   // FG 2.1
+                    mcVersion >= 11200 ? '541e148' : // FG 2.3
+                            mcVersion >= 10904 ? '5c1f53d' : // FG 2.2
+                                    '48c4f0c'   // FG 2.1
             ) + ':all')
         } else {
             classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
-            classpath 'com.github.ReplayMod:ForgeGradle:e93f77b4' // FG 1.2
+            classpath 'com.github.ReplayMod:ForgeGradle:a8a9e0ca' // FG 1.2
         }
     }
 }
-def kotlin_version = "1.3.72"
+
 def useMixin = false
 apply plugin: 'kotlin'
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven {
-        name = "kryonet"
-        url = "http://clojars.org/repo/"
-    }
-    maven {
-        url 'https://repository.apache.org/content/repositories/releases/org/apache/xmlgraphics/'
-    }
     maven { url 'https://jitpack.io' }
     maven { url "https://repo.sk1er.club/repository/maven-public" }
     maven {
-        name = 'sponge'
-        url = 'https://repo.spongepowered.org/maven'
+        credentials {
+            username "$nexus_user"
+            password "$nexus_password"
+        }
+        url "https://repo.sk1er.club/repository/maven-private"
     }
+    maven { url 'https://repo.spongepowered.org/maven' }
 }
 def FABRIC = fabric
 def VANILLA = vanilla
@@ -140,7 +119,7 @@ preprocess {
 
 version = this.properties.getOrDefault("BUILD_ID", "LOCAL") //BUILD_ID
 group = "club.sk1er"
-archivesBaseName = "AutoGG " + project.name
+archivesBaseName = modBaseName + " " + project.name
 
 sourceCompatibility = targetCompatibility = 1.8
 compileJava.options.encoding = 'UTF-8'
@@ -300,7 +279,7 @@ dependencies {
     }
 
     embed ("net.modcore:Loader:2.0.0")
-    implementation("net.modcore:ModCore:799-${mcVersion}-SNAPSHOT") {
+    implementation("net.modcore:ModCore:815-${mcVersion}-SNAPSHOT") {
         exclude module: "WaifUPnP"
     }
 
@@ -380,7 +359,6 @@ task moveResources {
 moveResources.dependsOn processResources
 classes.dependsOn moveResources
 
-
 processResources {
     // this will ensure that this task is redone when the versions change.
     if (mcVersion <= 11202) {
@@ -427,7 +405,10 @@ jar {
         }
 
         manifest {
-            attributes "TweakClass": "net.modcore.loader.ModCoreSetupTweaker", "TweakOrder": "0"
+            attributes "ModSide": "CLIENT",
+                    "FMLCorePluginContainsFMLMod": "Yes, yes it does",
+                    "TweakClass": "club.sk1er.mods.autogg.tweaker.AutoGGTweaker",
+                    "TweakOrder": "0"
         }
     }
 }

@@ -7,6 +7,9 @@ pluginManagement {
         google()
         maven("https://jitpack.io")
         maven("https://maven.fabricmc.net")
+        flatDir {
+            dirs=setOf(file("../../libs"))
+        }
     }
     resolutionStrategy {
         eachPlugin {

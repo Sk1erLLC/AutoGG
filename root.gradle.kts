@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "1.3.72" apply false
     id("fabric-loom") version "0.4-SNAPSHOT" apply false
-    id("com.replaymod.preprocess") version "f64d217"
+    id("com.replaymod.preprocess") version "3d85a00"
 }
 
 // Loom tries to find the active mixin version by recursing up to the root project and checking each project's
