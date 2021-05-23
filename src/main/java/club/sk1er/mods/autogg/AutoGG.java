@@ -23,16 +23,16 @@ import club.sk1er.mods.autogg.config.AutoGGConfig;
 import club.sk1er.mods.autogg.handlers.gg.AutoGGHandler;
 import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
+import gg.essential.api.EssentialAPI;
+import gg.essential.api.utils.JsonHolder;
+import gg.essential.api.utils.Multithreading;
+import gg.essential.api.utils.WebUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.modcore.api.ModCoreAPI;
-import net.modcore.api.utils.JsonHolder;
-import net.modcore.api.utils.Multithreading;
-import net.modcore.api.utils.WebUtil;
 
 /**
  * Contains the main class for AutoGG which handles trigger schema setting/getting and the main initialization code.
@@ -64,7 +64,7 @@ public class AutoGG {
 
         Multithreading.runAsync(new RetrieveTriggersTask());
         MinecraftForge.EVENT_BUS.register(new AutoGGHandler());
-        ModCoreAPI.getCommandRegistry().registerCommand(new AutoGGCommand());
+        EssentialAPI.getCommandRegistry().registerCommand(new AutoGGCommand());
 
         // fix settings that were moved to seconds instead of ms
         // so users aren't waiting 5000 seconds to send GG
@@ -75,7 +75,7 @@ public class AutoGG {
     @Mod.EventHandler
     public void loadComplete(FMLLoadCompleteEvent event) {
         if (!usingEnglish) {
-            ModCoreAPI.getNotifications().push(
+            EssentialAPI.getNotifications().push(
                 "AutoGG",
                 "We've detected your Hypixel language isn't set to English! AutoGG will not work on other languages.\n" +
                     "If this is a mistake, feel free to ignore it.", 6

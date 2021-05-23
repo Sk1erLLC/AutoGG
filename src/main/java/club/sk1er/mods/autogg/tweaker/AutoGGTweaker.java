@@ -1,9 +1,9 @@
 package club.sk1er.mods.autogg.tweaker;
 
-import net.modcore.loader.ModCoreSetupTweaker;
+import gg.essential.loader.EssentialTweaker;
 
 @SuppressWarnings("unused")
-public class AutoGGTweaker extends ModCoreSetupTweaker {
+public class AutoGGTweaker extends EssentialTweaker {
     public AutoGGTweaker() {
         super(new String[]{});
     }

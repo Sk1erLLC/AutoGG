@@ -4,11 +4,11 @@ import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.handlers.patterns.PatternHandler;
 import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.Trigger;
+import gg.essential.api.utils.Multithreading;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.modcore.api.utils.Multithreading;
 
 import java.util.concurrent.TimeUnit;
 

@@ -7,7 +7,7 @@ import club.sk1er.mods.autogg.tasks.data.Trigger;
 import club.sk1er.mods.autogg.tasks.data.TriggerType;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import com.google.gson.Gson;
-import net.modcore.api.utils.WebUtil;
+import gg.essential.api.utils.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
