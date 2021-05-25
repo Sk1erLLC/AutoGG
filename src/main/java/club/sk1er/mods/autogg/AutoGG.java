@@ -39,7 +39,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
  *
  * @author ChachyDev
  */
-@Mod(modid = "autogg", name = "AutoGG", version = "4.2")
+@Mod(modid = "autogg", name = "AutoGG", version = "4.1.0")
 public class AutoGG {
 
     @Mod.Instance
