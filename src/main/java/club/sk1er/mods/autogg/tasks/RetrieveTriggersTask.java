@@ -4,16 +4,11 @@ import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.handlers.patterns.PatternHandler;
 import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.Trigger;
-import club.sk1er.mods.autogg.tasks.data.TriggerType;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import com.google.gson.Gson;
 import gg.essential.api.utils.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Runnable class to fetch the AutoGG triggers on startup.
