@@ -1,7 +1,9 @@
 package club.sk1er.mods.autogg.handlers.patterns;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -11,28 +13,21 @@ import java.util.regex.Pattern;
  */
 public class PatternHandler {
     public static PatternHandler INSTANCE = new PatternHandler();
-    private final List<Pattern> patterns = new ArrayList<>();
 
-    public Pattern registerPattern(String pattern) {
-        Pattern p = Pattern.compile(pattern);
-        if (!patterns.contains(p)) {
-            patterns.add(p);
+    private final Map<String, Pattern> patternCache = new HashMap<>();
+
+    public Pattern getOrRegisterPattern(String pattern) {
+        String processedPattern = PlaceholderAPI.INSTANCE.process(pattern);
+
+        Pattern p = patternCache.get(processedPattern);
+        if (p == null) {
+            p = patternCache.put(processedPattern, Pattern.compile(processedPattern));
         }
 
         return p;
     }
 
-    public Pattern getPattern(String pattern) {
-        for (Pattern pattern1 : patterns) {
-            if (pattern1.pattern().equals(pattern)) {
-                return pattern1;
-            }
-        }
-
-        return registerPattern(pattern);
-    }
-
     public void clearPatterns() {
-        patterns.clear();
+        patternCache.clear();
     }
 }

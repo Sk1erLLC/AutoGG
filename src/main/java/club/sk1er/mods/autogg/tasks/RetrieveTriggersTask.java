@@ -36,24 +36,17 @@ public class RetrieveTriggersTask implements Runnable {
         try {
             AutoGG.INSTANCE.setTriggers(gson.fromJson(WebUtil.fetchString(TRIGGERS_URL), TriggersSchema.class));
         } catch (Exception e) {
-            // To stop maniac in the event of the triggers being failed to reach we just create an empty TriggerSchema.
+            // Prevent the game from melting when the triggers are not available
             LOGGER.error("Failed to fetch the AutoGG triggers! This isn't good...", e);
             AutoGG.INSTANCE.setTriggers(new TriggersSchema(new Server[0]));
             e.printStackTrace();
         }
 
         LOGGER.info("Registering patterns...");
-        List<String> joined = new ArrayList<>();
-        joined.addAll(Arrays.asList(AutoGG.INSTANCE.getPrimaryGGStrings()));
-        joined.addAll(Arrays.asList(AutoGG.INSTANCE.getSecondaryGGStrings()));
-
         for (Server server : AutoGG.INSTANCE.getTriggers().getServers()) {
             for (Trigger trigger : server.getTriggers()) {
                 String pattern = trigger.getPattern();
-                if (trigger.getType() == TriggerType.ANTI_GG) {
-                    pattern = pattern.replace("${antigg_strings}", String.join("|", joined));
-                }
-                PatternHandler.INSTANCE.registerPattern(pattern);
+                PatternHandler.INSTANCE.getOrRegisterPattern(pattern);
             }
         }
     }

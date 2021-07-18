@@ -7,6 +7,6 @@ import net.minecraft.client.Minecraft;
 public class ServerIPDetector implements IDetector {
     @Override
     public boolean detect(String data) {
-        return Minecraft.getMinecraft().thePlayer != null && PatternHandler.INSTANCE.getPattern(data).matcher(Minecraft.getMinecraft().getCurrentServerData().serverIP).matches();
+        return Minecraft.getMinecraft().thePlayer != null && PatternHandler.INSTANCE.getOrRegisterPattern(data).matcher(Minecraft.getMinecraft().getCurrentServerData().serverIP).matches();
     }
 }

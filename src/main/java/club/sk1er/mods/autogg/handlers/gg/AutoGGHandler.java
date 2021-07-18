@@ -6,6 +6,7 @@ import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.Trigger;
 import gg.essential.api.utils.Multithreading;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -46,12 +47,14 @@ public class AutoGGHandler {
 
     @SubscribeEvent
     public void onClientChatReceived(ClientChatReceivedEvent event) {
+        String stripped = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
+
         if (AutoGG.INSTANCE.getAutoGGConfig().isModEnabled() && server != null) {
             for (Trigger trigger : server.getTriggers()) {
                 switch (trigger.getType()) {
                     case ANTI_GG:
                         if (AutoGG.INSTANCE.getAutoGGConfig().isAntiGGEnabled()) {
-                            if (PatternHandler.INSTANCE.getPattern(trigger.getPattern()).matcher(event.message.getUnformattedText()).matches()) {
+                            if (PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
                                 event.setCanceled(true);
                                 return;
                             }
@@ -59,7 +62,7 @@ public class AutoGGHandler {
                         break;
                     case ANTI_KARMA:
                         if (AutoGG.INSTANCE.getAutoGGConfig().isAntiKarmaEnabled()) {
-                            if (PatternHandler.INSTANCE.getPattern(trigger.getPattern()).matcher(event.message.getUnformattedText()).matches()) {
+                            if (PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
                                 event.setCanceled(true);
                                 return;
                             }
@@ -69,12 +72,11 @@ public class AutoGGHandler {
             }
 
             Multithreading.runAsync(() -> {
-                String chatMessage = event.message.getUnformattedText();
                 // Casual GG feature
                 for (Trigger trigger : server.getTriggers()) {
                     switch (trigger.getType()) {
                         case NORMAL:
-                            if (PatternHandler.INSTANCE.getPattern(trigger.getPattern()).matcher(chatMessage).matches()) {
+                            if (PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
                                 invokeGG();
                                 return;
                             }
@@ -82,7 +84,7 @@ public class AutoGGHandler {
 
                         case CASUAL:
                             if (AutoGG.INSTANCE.getAutoGGConfig().isCasualAutoGGEnabled()) {
-                                if (PatternHandler.INSTANCE.getPattern(trigger.getPattern()).matcher(chatMessage).matches()) {
+                                if (PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
                                     invokeGG();
                                     return;
                                 }
