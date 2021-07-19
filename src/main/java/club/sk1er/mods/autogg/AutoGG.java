@@ -21,6 +21,7 @@ package club.sk1er.mods.autogg;
 import club.sk1er.mods.autogg.command.AutoGGCommand;
 import club.sk1er.mods.autogg.config.AutoGGConfig;
 import club.sk1er.mods.autogg.handlers.gg.AutoGGHandler;
+import club.sk1er.mods.autogg.handlers.patterns.PlaceholderAPI;
 import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import gg.essential.api.EssentialAPI;
@@ -33,6 +34,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+
+import java.util.*;
 
 /**
  * Contains the main class for AutoGG which handles trigger schema setting/getting and the main initialization code.
@@ -61,6 +64,12 @@ public class AutoGG {
     public void onFMLInitialization(FMLInitializationEvent event) {
         autoGGConfig = new AutoGGConfig();
         autoGGConfig.preload();
+
+        Set<String> joined = new HashSet<>();
+        joined.addAll(Arrays.asList(primaryGGStrings));
+        joined.addAll(Arrays.asList(secondaryGGStrings));
+
+        PlaceholderAPI.INSTANCE.registerPlaceHolder("antigg_strings", String.join("|", joined));
 
         Multithreading.runAsync(new RetrieveTriggersTask());
         MinecraftForge.EVENT_BUS.register(new AutoGGHandler());
