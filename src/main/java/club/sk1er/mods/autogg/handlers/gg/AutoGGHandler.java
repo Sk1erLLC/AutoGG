@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AutoGGHandler {
     private volatile Server server;
-    private volatile long lastGG = 0;
+    private long lastGG = 0;
 
     @SubscribeEvent
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
@@ -102,7 +102,7 @@ public class AutoGGHandler {
         if (server != null) {
             String prefix = server.getMessagePrefix();
 
-            if (System.currentTimeMillis() - lastGG < 10000) return;
+            if (System.currentTimeMillis() - lastGG < 10_000) return;
             lastGG = System.currentTimeMillis();
 
             String ggMessage = AutoGG.INSTANCE.getPrimaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase()];
