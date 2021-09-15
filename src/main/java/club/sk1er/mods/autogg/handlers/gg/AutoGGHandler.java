@@ -48,6 +48,7 @@ public class AutoGGHandler {
 
     @SubscribeEvent
     public void onClientChatReceived(ClientChatReceivedEvent event) {
+        if (event.type == 2) return;
         String stripped = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
 
         if (AutoGG.INSTANCE.getAutoGGConfig().isModEnabled() && server != null) {
