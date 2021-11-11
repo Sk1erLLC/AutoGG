@@ -63,7 +63,7 @@ public class AutoGGConfig extends Vigilant {
         type = PropertyType.SELECTOR, name = "Phrase",
         description = "Send a secondary message sent after the first GG message.",
         category = "General", subcategory = "Secondary Message",
-        options = {"Have a good day!", "<3", "AutoGG By Sk1er!"}
+        options = {"Have a good day!", "<3", "AutoGG By Sk1er!", "gf", "Good Fight", "Good Round", ":D", "Well played!", "wp"}
     )
     private int autoGGPhrase2 = 0;
 
