@@ -1,9 +1,6 @@
 # AutoGG
 AutoGG is a Minecraft Forge mod developed by [Sk1er LLC](https://github.com/Sk1erLLC) that allows you to automatically say a selected phrase after a game has ended on supported servers.
 
-## Downloads
-See [releases](https://github.com/Sk1erLLC/AutoGG/releases) for downloads.
-
 ## Support
 Join [our support Discord](https://discord.gg/d4KFR9H) for support.
 
