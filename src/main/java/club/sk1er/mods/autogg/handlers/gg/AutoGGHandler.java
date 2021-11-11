@@ -113,7 +113,7 @@ public class AutoGGHandler {
 
             if (AutoGG.INSTANCE.getAutoGGConfig().isSecondaryEnabled()) {
                 String secondGGMessage = AutoGG.INSTANCE.getSecondaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase2()];
-                int secondaryDelay = AutoGG.INSTANCE.getAutoGGConfig().getSecondaryDelay();
+                int secondaryDelay = AutoGG.INSTANCE.getAutoGGConfig().getSecondaryDelay() + AutoGG.INSTANCE.getAutoGGConfig().getAutoGGDelay();
 
                 Multithreading.schedule(() -> Minecraft.getMinecraft().thePlayer.sendChatMessage(prefix.isEmpty() ? ggMessage : prefix + " " + secondGGMessage), secondaryDelay, TimeUnit.SECONDS);
             }
