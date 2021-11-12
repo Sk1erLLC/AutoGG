@@ -49,7 +49,7 @@ public class AutoGG {
     public static AutoGG INSTANCE;
 
     private final String[] primaryGGStrings = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"};
-    private final String[] secondaryGGStrings = {"Have a good day!", "<3", "AutoGG By Sk1er!"};
+    private final String[] secondaryGGStrings = {"Have a good day!", "<3", "AutoGG By Sk1er!", "gf", "Good Fight", "Good Round", ":D", "Well played!", "wp"};
     private TriggersSchema triggers;
     private AutoGGConfig autoGGConfig;
 
