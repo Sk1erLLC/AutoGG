@@ -4,7 +4,7 @@
     "name": "AutoGG",
     "description": "AutoGG automatically says a selectable phrase after a game has ended on supported servers.",
     "version": "${version}",
-    "mcversion": "${mcversion}",
+    "mcversion": "${mcVersionStr}",
     "url": "https://sk1er.club/",
     "updateUrl": "",
     "authorList": [
