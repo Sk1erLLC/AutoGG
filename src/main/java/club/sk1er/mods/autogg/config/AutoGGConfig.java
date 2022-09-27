@@ -48,7 +48,7 @@ public class AutoGGConfig extends Vigilant {
         type = PropertyType.SELECTOR, name = "Phrase",
         description = "Choose what message is said on game completion.",
         category = "General", subcategory = "General",
-        options = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"}
+        options = {"ez", "EZ", "lmfao L", "shit yourself", "you're the worst player ive ever seen", "you should feel bad"}
     )
     private int autoGGPhrase = 0;
 
@@ -63,7 +63,7 @@ public class AutoGGConfig extends Vigilant {
         type = PropertyType.SELECTOR, name = "Phrase",
         description = "Send a secondary message sent after the first GG message.",
         category = "General", subcategory = "Secondary Message",
-        options = {"Have a good day!", "<3", "AutoGG By Sk1er!", "gf", "Good Fight", "Good Round", ":D", "Well played!", "wp"}
+        options = {"i hope you commit unalive", "fuck you", "AutoEZ By exhq", "ez", "you're the shittiest player ive ever seen in the history of video games", "you should stop playing video games", "you dont deserve to be alive", "L", "kill yourself"}
     )
     private int autoGGPhrase2 = 0;
 
