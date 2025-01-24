@@ -26,7 +26,6 @@ import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import gg.essential.api.EssentialAPI;
 import gg.essential.api.utils.JsonHolder;
-import gg.essential.api.utils.Multithreading;
 import gg.essential.api.utils.WebUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
@@ -36,6 +35,8 @@ import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Contains the main class for AutoGG which handles trigger schema setting/getting and the main initialization code.
@@ -55,9 +56,11 @@ public class AutoGG {
 
     private boolean usingEnglish;
 
+    public static final ScheduledExecutorService POOL = Executors.newScheduledThreadPool(5);
+
     @Mod.EventHandler
     public void onFMLPreInitialization(FMLPreInitializationEvent event) {
-        Multithreading.runAsync(this::checkUserLanguage);
+        POOL.submit(this::checkUserLanguage);
     }
 
     @Mod.EventHandler
@@ -71,7 +74,7 @@ public class AutoGG {
 
         PlaceholderAPI.INSTANCE.registerPlaceHolder("antigg_strings", String.join("|", joined));
 
-        Multithreading.runAsync(new RetrieveTriggersTask());
+        POOL.submit(new RetrieveTriggersTask());
         MinecraftForge.EVENT_BUS.register(new AutoGGHandler());
         EssentialAPI.getCommandRegistry().registerCommand(new AutoGGCommand());
 

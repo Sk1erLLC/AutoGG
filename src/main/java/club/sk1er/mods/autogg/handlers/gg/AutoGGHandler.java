@@ -4,22 +4,23 @@ import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.handlers.patterns.PatternHandler;
 import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.Trigger;
-import gg.essential.api.utils.Multithreading;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.concurrent.TimeUnit;
+
+import static club.sk1er.mods.autogg.AutoGG.POOL;
 
 /**
  * Where the magic happens...
  * We handle which server's triggers should be used
  * and how to detect which server the player is currently
  * on.
- *
- * @author ChachyDev
  */
 public class AutoGGHandler {
     private volatile Server server;
@@ -28,7 +29,7 @@ public class AutoGGHandler {
     @SubscribeEvent
     public void onEntityJoinWorld(EntityJoinWorldEvent event) {
         if (event.entity == Minecraft.getMinecraft().thePlayer && AutoGG.INSTANCE.getAutoGGConfig().isModEnabled()) {
-            Multithreading.runAsync(() -> {
+            POOL.submit(() -> {
                 for (Server s : AutoGG.INSTANCE.getTriggers().getServers()) {
                     try {
                         if (s.getDetectionHandler().getDetector().detect(s.getData())) {
@@ -73,7 +74,7 @@ public class AutoGGHandler {
                 }
             }
 
-            Multithreading.runAsync(() -> {
+            POOL.submit(() -> {
                 // Casual GG feature
                 for (Trigger trigger : server.getTriggers()) {
                     switch (trigger.getType()) {
@@ -109,13 +110,13 @@ public class AutoGGHandler {
             String ggMessage = AutoGG.INSTANCE.getPrimaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase()];
             int delay = AutoGG.INSTANCE.getAutoGGConfig().getAutoGGDelay();
 
-            Multithreading.schedule(() -> Minecraft.getMinecraft().thePlayer.sendChatMessage(prefix.isEmpty() ? ggMessage : prefix + " " + ggMessage), delay, TimeUnit.SECONDS);
+            POOL.schedule(() -> Minecraft.getMinecraft().thePlayer.sendChatMessage(prefix.isEmpty() ? ggMessage : prefix + " " + ggMessage), delay, TimeUnit.SECONDS);
 
             if (AutoGG.INSTANCE.getAutoGGConfig().isSecondaryEnabled()) {
                 String secondGGMessage = AutoGG.INSTANCE.getSecondaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase2()];
                 int secondaryDelay = AutoGG.INSTANCE.getAutoGGConfig().getSecondaryDelay() + AutoGG.INSTANCE.getAutoGGConfig().getAutoGGDelay();
 
-                Multithreading.schedule(() -> Minecraft.getMinecraft().thePlayer.sendChatMessage(prefix.isEmpty() ? ggMessage : prefix + " " + secondGGMessage), secondaryDelay, TimeUnit.SECONDS);
+                POOL.schedule(() -> Minecraft.getMinecraft().thePlayer.sendChatMessage(prefix.isEmpty() ? ggMessage : prefix + " " + secondGGMessage), secondaryDelay, TimeUnit.SECONDS);
             }
         }
     }
