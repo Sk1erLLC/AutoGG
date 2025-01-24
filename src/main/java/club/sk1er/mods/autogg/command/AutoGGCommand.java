@@ -1,31 +1,40 @@
 package club.sk1er.mods.autogg.command;
 
 import club.sk1er.mods.autogg.AutoGG;
+import club.sk1er.mods.autogg.handlers.gg.AutoGGHandler;
 import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
-import gg.essential.api.EssentialAPI;
-import gg.essential.api.commands.Command;
-import gg.essential.api.commands.DefaultHandler;
-import gg.essential.api.commands.SubCommand;
-import gg.essential.api.utils.GuiUtil;
-import gg.essential.api.utils.Multithreading;
 import gg.essential.universal.ChatColor;
 import gg.essential.universal.wrappers.message.UTextComponent;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
 
-import java.util.Objects;
+import static club.sk1er.mods.autogg.AutoGG.POOL;
 
-public class AutoGGCommand extends Command {
-    public AutoGGCommand() {
-        super("autogg");
+public class AutoGGCommand extends CommandBase {
+
+    @Override
+    public String getCommandName() {
+        return "autogg";
     }
 
-    @DefaultHandler
-    public void handle() {
-        GuiUtil.open(Objects.requireNonNull(AutoGG.INSTANCE.getAutoGGConfig().gui()));
+    @Override
+    public String getCommandUsage(ICommandSender sender) {
+        return "autogg";
     }
 
-    @SubCommand(value = "refresh", description = "Refreshes your loaded triggers.")
-    public void refresh() {
-        Multithreading.runAsync(new RetrieveTriggersTask());
-        EssentialAPI.getMinecraftUtil().sendMessage(new UTextComponent(ChatColor.GREEN + "Refreshed triggers!"));
+    @Override
+    public void processCommand(ICommandSender sender, String[] args) throws CommandException {
+        if (args.length == 1 && args[0].equalsIgnoreCase("refresh")) {
+            POOL.submit(new RetrieveTriggersTask());
+            (new UTextComponent(ChatColor.GREEN + "Refreshed triggers!")).chat();
+            return;
+        }
+        AutoGGHandler.displayScreen = AutoGG.INSTANCE.getAutoGGConfig().gui();
+    }
+
+    @Override
+    public int getRequiredPermissionLevel() {
+        return 0;
     }
 }

@@ -120,4 +120,17 @@ public class AutoGGHandler {
             }
         }
     }
+
+    /**
+     * Gui Handling
+     */
+    public static GuiScreen displayScreen = null;
+
+    @SubscribeEvent
+    public void onTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (displayScreen == null) return;
+        Minecraft.getMinecraft().displayGuiScreen(displayScreen);
+        displayScreen = null;
+    }
 }

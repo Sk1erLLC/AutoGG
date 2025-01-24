@@ -28,6 +28,7 @@ import gg.essential.api.EssentialAPI;
 import gg.essential.api.utils.JsonHolder;
 import gg.essential.api.utils.WebUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -76,7 +77,7 @@ public class AutoGG {
 
         POOL.submit(new RetrieveTriggersTask());
         MinecraftForge.EVENT_BUS.register(new AutoGGHandler());
-        EssentialAPI.getCommandRegistry().registerCommand(new AutoGGCommand());
+        ClientCommandHandler.instance.registerCommand(new AutoGGCommand());
 
         // fix settings that were moved to seconds instead of ms
         // so users aren't waiting 5000 seconds to send GG
