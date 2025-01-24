@@ -11,11 +11,15 @@ val modBaseName: String by project
 group = modGroup
 base.archivesName.set("$modBaseName-${platform.mcVersionStr}")
 
+repositories {
+    maven("https://repo.spongepowered.org/repository/maven-public/")
+}
+
 loom {
     noServerRunConfigs()
-    launchConfigs {
+    runConfigs {
         getByName("client") {
-            arg("--tweakClass", "gg.essential.loader.stage0.EssentialSetupTweaker")
+            programArgs("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
         }
     }
 }
@@ -24,8 +28,9 @@ val embed by configurations.creating
 configurations.implementation.get().extendsFrom(embed)
 
 dependencies {
-    compileOnly("gg.essential:essential-$platform:2666")
-    embed("gg.essential:loader-launchwrapper:1.1.3")
+    embed("org.spongepowered:mixin:0.7-SNAPSHOT")
+    embed("gg.essential:vigilance:306")
+    embed(modImplementation("gg.essential:universalcraft-1.8.9-forge:369")!!)
 }
 
 tasks.jar {
@@ -35,7 +40,7 @@ tasks.jar {
         mapOf(
             "ModSide" to "CLIENT",
             "FMLCorePluginContainsFMLMod" to "Yes, yes it does",
-            "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+            "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
             "TweakOrder" to "0"
         )
     )
