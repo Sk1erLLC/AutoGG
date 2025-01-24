@@ -4,6 +4,7 @@ import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.handlers.patterns.PatternHandler;
 import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.Trigger;
+import gg.essential.universal.wrappers.message.UMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.EnumChatFormatting;
@@ -44,6 +45,11 @@ public class AutoGGHandler {
                 // In case if it's not null and we couldn't find the triggers for the current server.
                 server = null;
             });
+            if (!AutoGG.INSTANCE.usingEnglish) {
+                new UMessage("AutoGG").chat();
+                new UMessage("We've detected your Hypixel language isn't set to English! AutoGG will not work on other languages.\n" +
+                        "If this is a mistake, feel free to ignore it.").chat();
+            }
         }
     }
 

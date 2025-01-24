@@ -27,13 +27,11 @@ import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import club.sk1er.mods.autogg.util.JsonUtil;
 import com.google.gson.JsonObject;
-import gg.essential.api.EssentialAPI;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 import java.util.*;
@@ -56,7 +54,7 @@ public class AutoGG {
     private TriggersSchema triggers;
     private AutoGGConfig autoGGConfig;
 
-    private boolean usingEnglish;
+    public boolean usingEnglish;
 
     public static final ScheduledExecutorService POOL = Executors.newScheduledThreadPool(5);
 
@@ -84,17 +82,6 @@ public class AutoGG {
         // so users aren't waiting 5000 seconds to send GG
         if (autoGGConfig.getAutoGGDelay() > 5) autoGGConfig.setAutoGGDelay(1);
         if (autoGGConfig.getSecondaryDelay() > 5) autoGGConfig.setSecondaryDelay(1);
-    }
-
-    @Mod.EventHandler
-    public void loadComplete(FMLLoadCompleteEvent event) {
-        if (!usingEnglish) {
-            EssentialAPI.getNotifications().push(
-                "AutoGG",
-                "We've detected your Hypixel language isn't set to English! AutoGG will not work on other languages.\n" +
-                    "If this is a mistake, feel free to ignore it.", 6
-            );
-        }
     }
 
     private void checkUserLanguage() {
