@@ -2,11 +2,11 @@ package club.sk1er.mods.autogg.tasks;
 
 import club.sk1er.mods.autogg.AutoGG;
 import club.sk1er.mods.autogg.handlers.patterns.PatternHandler;
+import club.sk1er.mods.autogg.handlers.web.WebHandler;
 import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.Trigger;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import com.google.gson.Gson;
-import gg.essential.api.utils.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +29,7 @@ public class RetrieveTriggersTask implements Runnable {
     @Override
     public void run() {
         try {
-            AutoGG.INSTANCE.setTriggers(gson.fromJson(WebUtil.fetchString(TRIGGERS_URL), TriggersSchema.class));
+            AutoGG.INSTANCE.setTriggers(gson.fromJson(WebHandler.fetchString(TRIGGERS_URL), TriggersSchema.class));
         } catch (Exception e) {
             // Prevent the game from melting when the triggers are not available
             LOGGER.error("Failed to fetch the AutoGG triggers! This isn't good...", e);

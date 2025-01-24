@@ -22,11 +22,12 @@ import club.sk1er.mods.autogg.command.AutoGGCommand;
 import club.sk1er.mods.autogg.config.AutoGGConfig;
 import club.sk1er.mods.autogg.handlers.gg.AutoGGHandler;
 import club.sk1er.mods.autogg.handlers.patterns.PlaceholderAPI;
+import club.sk1er.mods.autogg.handlers.web.WebHandler;
 import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
+import club.sk1er.mods.autogg.util.JsonUtil;
+import com.google.gson.JsonObject;
 import gg.essential.api.EssentialAPI;
-import gg.essential.api.utils.JsonHolder;
-import gg.essential.api.utils.WebUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
@@ -98,8 +99,8 @@ public class AutoGG {
 
     private void checkUserLanguage() {
         final String username = Minecraft.getMinecraft().getSession().getUsername();
-        final JsonHolder json = WebUtil.fetchJSON("https://api.sk1er.club/player/" + username);
-        final String language = json.optJSONObject("player").defaultOptString("userLanguage", "ENGLISH");
+        final JsonObject json = WebHandler.fetchJson("https://api.sk1er.club/player/" + username);
+        final String language = JsonUtil.getOrDefaultString(JsonUtil.getPossibleJsonObject(json, "player"),"userLanguage", "ENGLISH");
         this.usingEnglish = "ENGLISH".equals(language);
     }
 
