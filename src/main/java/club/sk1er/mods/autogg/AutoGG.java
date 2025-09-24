@@ -86,8 +86,8 @@ public class AutoGG {
 
     private void checkUserLanguage() {
         final String username = Minecraft.getMinecraft().getSession().getUsername();
-        final JsonObject json = WebHandler.fetchJson("https://api.sk1er.club/player/" + username);
-        final String language = JsonUtil.getOrDefaultString(JsonUtil.getPossibleJsonObject(json, "player"),"userLanguage", "ENGLISH");
+        final JsonObject json = WebHandler.fetchJson("https://api.sk1er.club/language/" + username);
+        final String language = JsonUtil.getOrDefaultString(json,"language", "ENGLISH");
         this.usingEnglish = "ENGLISH".equals(language);
     }
 

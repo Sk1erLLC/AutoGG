@@ -13,6 +13,7 @@ base.archivesName.set("$modBaseName-${platform.mcVersionStr}")
 
 repositories {
     maven("https://repo.spongepowered.org/repository/maven-public/")
+    maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
 }
 
 loom {
@@ -31,6 +32,7 @@ dependencies {
     embed("org.spongepowered:mixin:0.7-SNAPSHOT")
     embed("gg.essential:vigilance:306")
     embed(modImplementation("gg.essential:universalcraft-1.8.9-forge:369")!!)
+    modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
 }
 
 tasks.jar {

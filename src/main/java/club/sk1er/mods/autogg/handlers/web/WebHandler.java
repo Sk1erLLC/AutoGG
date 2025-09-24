@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 
 public class WebHandler {
     private static final Gson gson = new Gson();
@@ -25,8 +26,13 @@ public class WebHandler {
     }
 
     public static String fetchString(URL url) {
-        try (InputStream in = url.openConnection().getInputStream()) {
-            return IOUtils.toString(in);
+        try {
+            URLConnection connection = url.openConnection();
+            connection.setRequestProperty("User-Agent", "AutoGG");
+
+            try (InputStream in = connection.getInputStream()) {
+                return IOUtils.toString(in, "UTF-8");
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
             return "Failed to fetch";
