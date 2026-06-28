@@ -1,35 +1,29 @@
 package club.sk1er.mods.autogg.handlers.gg;
 
 import club.sk1er.mods.autogg.AutoGG;
+import club.sk1er.mods.autogg.config.AutoGGConfig;
 import club.sk1er.mods.autogg.handlers.patterns.PatternHandler;
 import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.Trigger;
-import gg.essential.universal.wrappers.message.UMessage;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.client.event.ClientChatReceivedEvent;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraft.network.chat.Component;
 
 import java.util.concurrent.TimeUnit;
 
 import static club.sk1er.mods.autogg.AutoGG.POOL;
 
-/**
- * Where the magic happens...
- * We handle which server's triggers should be used
- * and how to detect which server the player is currently
- * on.
- */
 public class AutoGGHandler {
     private volatile Server server;
     private long lastGG = 0;
 
-    @SubscribeEvent
-    public void onEntityJoinWorld(EntityJoinWorldEvent event) {
-        if (event.entity == Minecraft.getMinecraft().thePlayer && AutoGG.INSTANCE.getAutoGGConfig().isModEnabled()) {
+    public void register() {
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            server = null;
+            if (!AutoGGConfig.get().isModEnabled()) return;
+
             POOL.submit(() -> {
                 for (Server s : AutoGG.INSTANCE.getTriggers().getServers()) {
                     try {
@@ -37,106 +31,106 @@ public class AutoGGHandler {
                             server = s;
                             return;
                         }
-                    } catch (Throwable e) {
-                        // Stop log spam
+                    } catch (Throwable ignored) {
                     }
                 }
-
-                // In case if it's not null and we couldn't find the triggers for the current server.
-                server = null;
             });
-            if (!AutoGG.INSTANCE.usingEnglish) {
-                new UMessage("AutoGG").chat();
-                new UMessage("We've detected your Hypixel language isn't set to English! AutoGG will not work on other languages.\n" +
-                        "If this is a mistake, feel free to ignore it.").chat();
+
+            if (!AutoGG.INSTANCE.usingEnglish && client.player != null) {
+                client.player.sendSystemMessage(Component.literal(
+                    ChatFormatting.GOLD + "[AutoGG] " + ChatFormatting.RED +
+                    "We've detected your Hypixel language isn't set to English! " +
+                    "AutoGG will not work on other languages."
+                ));
             }
-        }
+        });
+
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> server = null);
+
+        ClientReceiveMessageEvents.ALLOW_CHAT.register((message, signedMessage, sender, params, receptionTimestamp) ->
+            handleIncoming(message.getString())
+        );
+
+        ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) -> {
+            if (overlay) return true;
+            return handleIncoming(message.getString());
+        });
     }
 
-    @SubscribeEvent
-    public void onClientChatReceived(ClientChatReceivedEvent event) {
-        if (event.type == 2) return;
-        String stripped = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
+    // Returns false to cancel the message, true to allow it
+    private boolean handleIncoming(String rawMessage) {
+        if (!AutoGGConfig.get().isModEnabled() || server == null) return true;
 
-        if (AutoGG.INSTANCE.getAutoGGConfig().isModEnabled() && server != null) {
+        String stripped = ChatFormatting.stripFormatting(rawMessage);
+
+        for (Trigger trigger : server.getTriggers()) {
+            switch (trigger.getType()) {
+                case ANTI_GG:
+                    if (AutoGGConfig.get().isAntiGGEnabled() &&
+                        PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
+                        return false;
+                    }
+                    break;
+                case ANTI_KARMA:
+                    if (AutoGGConfig.get().isAntiKarmaEnabled() &&
+                        PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
+                        return false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        POOL.submit(() -> {
             for (Trigger trigger : server.getTriggers()) {
                 switch (trigger.getType()) {
-                    case ANTI_GG:
-                        if (AutoGG.INSTANCE.getAutoGGConfig().isAntiGGEnabled()) {
-                            if (PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
-                                event.setCanceled(true);
-                                return;
-                            }
+                    case NORMAL:
+                        if (PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
+                            invokeGG();
+                            return;
                         }
                         break;
-                    case ANTI_KARMA:
-                        if (AutoGG.INSTANCE.getAutoGGConfig().isAntiKarmaEnabled()) {
-                            if (PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
-                                event.setCanceled(true);
-                                return;
-                            }
+                    case CASUAL:
+                        if (AutoGGConfig.get().isCasualAutoGGEnabled() &&
+                            PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
+                            invokeGG();
+                            return;
                         }
+                        break;
+                    default:
                         break;
                 }
             }
+        });
 
-            POOL.submit(() -> {
-                // Casual GG feature
-                for (Trigger trigger : server.getTriggers()) {
-                    switch (trigger.getType()) {
-                        case NORMAL:
-                            if (PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
-                                invokeGG();
-                                return;
-                            }
-                            break;
-
-                        case CASUAL:
-                            if (AutoGG.INSTANCE.getAutoGGConfig().isCasualAutoGGEnabled()) {
-                                if (PatternHandler.INSTANCE.getOrRegisterPattern(trigger.getPattern()).matcher(stripped).matches()) {
-                                    invokeGG();
-                                    return;
-                                }
-                            }
-                            break;
-                    }
-                }
-            });
-        }
+        return true;
     }
 
     private void invokeGG() {
-        // Better safe than sorry
-        if (server != null) {
-            String prefix = server.getMessagePrefix();
+        if (server == null) return;
+        if (System.currentTimeMillis() - lastGG < 10_000) return;
+        lastGG = System.currentTimeMillis();
 
-            if (System.currentTimeMillis() - lastGG < 10_000) return;
-            lastGG = System.currentTimeMillis();
+        String prefix = server.getMessagePrefix();
+        String ggMessage = AutoGG.INSTANCE.getPrimaryGGStrings()[AutoGGConfig.get().getAutoGGPhrase()];
+        int delay = AutoGGConfig.get().getAutoGGDelay();
 
-            String ggMessage = AutoGG.INSTANCE.getPrimaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase()];
-            int delay = AutoGG.INSTANCE.getAutoGGConfig().getAutoGGDelay();
+        String firstMsg = prefix.isEmpty() ? ggMessage : prefix + " " + ggMessage;
+        POOL.schedule(() -> sendChat(firstMsg), delay, TimeUnit.SECONDS);
 
-            POOL.schedule(() -> Minecraft.getMinecraft().thePlayer.sendChatMessage(prefix.isEmpty() ? ggMessage : prefix + " " + ggMessage), delay, TimeUnit.SECONDS);
-
-            if (AutoGG.INSTANCE.getAutoGGConfig().isSecondaryEnabled()) {
-                String secondGGMessage = AutoGG.INSTANCE.getSecondaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase2()];
-                int secondaryDelay = AutoGG.INSTANCE.getAutoGGConfig().getSecondaryDelay() + AutoGG.INSTANCE.getAutoGGConfig().getAutoGGDelay();
-
-                POOL.schedule(() -> Minecraft.getMinecraft().thePlayer.sendChatMessage(prefix.isEmpty() ? ggMessage : prefix + " " + secondGGMessage), secondaryDelay, TimeUnit.SECONDS);
-            }
+        if (AutoGGConfig.get().isSecondaryEnabled()) {
+            String secondMsg = AutoGG.INSTANCE.getSecondaryGGStrings()[AutoGGConfig.get().getAutoGGPhrase2()];
+            String secondFull = prefix.isEmpty() ? secondMsg : prefix + " " + secondMsg;
+            int secondaryDelay = delay + AutoGGConfig.get().getSecondaryDelay();
+            POOL.schedule(() -> sendChat(secondFull), secondaryDelay, TimeUnit.SECONDS);
         }
     }
 
-    /**
-     * Gui Handling
-     */
-    public static GuiScreen displayScreen = null;
-
-    @SubscribeEvent
-    public void onTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        if (displayScreen == null) return;
-        Minecraft.getMinecraft().displayGuiScreen(displayScreen);
-        displayScreen = null;
+    private static void sendChat(String message) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null && mc.getConnection() != null) {
+            mc.getConnection().sendChat(message);
+        }
     }
 }

@@ -1,126 +1,68 @@
 package club.sk1er.mods.autogg.config;
 
-import gg.essential.vigilance.Vigilant;
-import gg.essential.vigilance.data.Property;
-import gg.essential.vigilance.data.PropertyType;
+import club.sk1er.mods.autogg.AutoGG;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.fabricmc.loader.api.FabricLoader;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-@SuppressWarnings("FieldMayBeFinal")
-public class AutoGGConfig extends Vigilant {
-    @Property(
-        type = PropertyType.SWITCH, name = "AutoGG",
-        description = "Entirely toggles AutoGG",
-        category = "General", subcategory = "General"
-    )
-    private boolean autoGGEnabled = true;
+public class AutoGGConfig {
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("autogg.json");
 
-    @Property(
-        type = PropertyType.SWITCH, name = "Casual AutoGG",
-        description = "Enable AutoGG for things that don't give Karma such as Skyblock Events.",
-        category = "General", subcategory = "General"
-    )
-    private boolean casualAutoGGEnabled;
+    private static AutoGGConfig instance = new AutoGGConfig();
 
-    @Property(
-        type = PropertyType.SWITCH, name = "Anti GG",
-        description = "Remove GG messages from chat.",
-        category = "General", subcategory = "Miscellaneous"
-    )
-    private boolean antiGGEnabled;
-
-    @Property(
-        type = PropertyType.SWITCH, name = "Anti Karma",
-        description = "Remove Karma messages from chat.",
-        category = "General", subcategory = "Miscellaneous"
-    )
-    private boolean antiKarmaEnabled;
-
-    @Property(
-        type = PropertyType.SLIDER, name = "Delay",
-        description = "Delay after the game ends to say the message.\n§eMeasured in seconds.",
-        category = "General", subcategory = "General",
-        max = 5
-    )
+    // General
+    private boolean modEnabled = true;
+    private boolean casualAutoGGEnabled = false;
     private int autoGGDelay = 1;
-
-    @Property(
-        type = PropertyType.SELECTOR, name = "Phrase",
-        description = "Choose what message is said on game completion.",
-        category = "General", subcategory = "General",
-        options = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"}
-    )
     private int autoGGPhrase = 0;
 
-    @Property(
-        type = PropertyType.SWITCH, name = "Second Message",
-        description = "Enable a secondary message to send after your first GG.",
-        category = "General", subcategory = "Secondary Message"
-    )
-    private boolean secondaryEnabled;
+    // Misc
+    private boolean antiGGEnabled = false;
+    private boolean antiKarmaEnabled = false;
 
-    @Property(
-        type = PropertyType.SELECTOR, name = "Phrase",
-        description = "Send a secondary message sent after the first GG message.",
-        category = "General", subcategory = "Secondary Message",
-        options = {"Have a good day!", "<3", "AutoGG By Sk1er!", "gf", "Good Fight", "Good Round", ":D", "Well played!", "wp"}
-    )
+    // Secondary
+    private boolean secondaryEnabled = false;
     private int autoGGPhrase2 = 0;
-
-    @Property(
-        type = PropertyType.SLIDER, name = "Second Message Delay",
-        description = "Delay between the first & second end of game messages.\n§eMeasured in seconds.",
-        category = "General", subcategory = "Secondary Message",
-        max = 5
-    )
     private int secondaryDelay = 1;
 
-    public AutoGGConfig() {
-        super(new File("./config/autogg.toml"));
-        initialize();
+    public static AutoGGConfig get() {
+        return instance;
     }
 
-    public boolean isModEnabled() {
-        return autoGGEnabled;
+    public static void load() {
+        if (Files.exists(CONFIG_PATH)) {
+            try (Reader reader = Files.newBufferedReader(CONFIG_PATH)) {
+                AutoGGConfig loaded = GSON.fromJson(reader, AutoGGConfig.class);
+                if (loaded != null) instance = loaded;
+            } catch (IOException e) {
+                AutoGG.LOGGER.error("Failed to load AutoGG config", e);
+            }
+        }
+        save();
     }
 
-    public boolean isCasualAutoGGEnabled() {
-        return casualAutoGGEnabled;
+    public static void save() {
+        try (Writer writer = Files.newBufferedWriter(CONFIG_PATH)) {
+            GSON.toJson(instance, writer);
+        } catch (IOException e) {
+            AutoGG.LOGGER.error("Failed to save AutoGG config", e);
+        }
     }
 
-    public boolean isAntiGGEnabled() {
-        return antiGGEnabled;
-    }
-
-    public boolean isAntiKarmaEnabled() {
-        return antiKarmaEnabled;
-    }
-
-    public int getAutoGGDelay() {
-        return autoGGDelay;
-    }
-
-    public int getAutoGGPhrase() {
-        return autoGGPhrase;
-    }
-
-    public boolean isSecondaryEnabled() {
-        return secondaryEnabled;
-    }
-
-    public int getAutoGGPhrase2() {
-        return autoGGPhrase2;
-    }
-
-    public int getSecondaryDelay() {
-        return secondaryDelay;
-    }
-
-    public void setAutoGGDelay(int autoGGDelay) {
-        this.autoGGDelay = autoGGDelay;
-    }
-
-    public void setSecondaryDelay(int secondaryDelay) {
-        this.secondaryDelay = secondaryDelay;
-    }
+    public boolean isModEnabled() { return modEnabled; }
+    public boolean isCasualAutoGGEnabled() { return casualAutoGGEnabled; }
+    public int getAutoGGDelay() { return Math.max(0, Math.min(5, autoGGDelay)); }
+    public int getAutoGGPhrase() { return Math.max(0, Math.min(5, autoGGPhrase)); }
+    public boolean isAntiGGEnabled() { return antiGGEnabled; }
+    public boolean isAntiKarmaEnabled() { return antiKarmaEnabled; }
+    public boolean isSecondaryEnabled() { return secondaryEnabled; }
+    public int getAutoGGPhrase2() { return Math.max(0, Math.min(8, autoGGPhrase2)); }
+    public int getSecondaryDelay() { return Math.max(0, Math.min(5, secondaryDelay)); }
 }

@@ -1,21 +1,3 @@
-/*
- * AutoGG - Automatically say a selectable phrase at the end of a game on supported servers.
- * Copyright (C) 2020  Sk1er LLC
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package club.sk1er.mods.autogg;
 
 import club.sk1er.mods.autogg.command.AutoGGCommand;
@@ -24,83 +6,71 @@ import club.sk1er.mods.autogg.handlers.gg.AutoGGHandler;
 import club.sk1er.mods.autogg.handlers.patterns.PlaceholderAPI;
 import club.sk1er.mods.autogg.handlers.web.WebHandler;
 import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
+import club.sk1er.mods.autogg.tasks.data.Server;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
 import club.sk1er.mods.autogg.util.JsonUtil;
 import com.google.gson.JsonObject;
+import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-/**
- * Contains the main class for AutoGG which handles trigger schema setting/getting and the main initialization code.
- *
- * @author ChachyDev
- */
-@Mod(modid = "autogg", name = "AutoGG", version = "4.1.3")
-public class AutoGG {
-
-    @Mod.Instance
+public class AutoGG implements ClientModInitializer {
+    public static final String MODID = "autogg";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
     public static AutoGG INSTANCE;
 
     private final String[] primaryGGStrings = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"};
     private final String[] secondaryGGStrings = {"Have a good day!", "<3", "AutoGG By Sk1er!", "gf", "Good Fight", "Good Round", ":D", "Well played!", "wp"};
-    private TriggersSchema triggers;
-    private AutoGGConfig autoGGConfig;
+    private volatile TriggersSchema triggers;
 
-    public boolean usingEnglish;
-
+    public volatile boolean usingEnglish = true;
     public static final ScheduledExecutorService POOL = Executors.newScheduledThreadPool(5);
 
-    @Mod.EventHandler
-    public void onFMLPreInitialization(FMLPreInitializationEvent event) {
-        POOL.submit(this::checkUserLanguage);
-    }
+    @Override
+    public void onInitializeClient() {
+        INSTANCE = this;
 
-    @Mod.EventHandler
-    public void onFMLInitialization(FMLInitializationEvent event) {
-        autoGGConfig = new AutoGGConfig();
-        autoGGConfig.preload();
+        AutoGGConfig.load();
 
         Set<String> joined = new HashSet<>();
         joined.addAll(Arrays.asList(primaryGGStrings));
         joined.addAll(Arrays.asList(secondaryGGStrings));
-
         PlaceholderAPI.INSTANCE.registerPlaceHolder("antigg_strings", String.join("|", joined));
 
-        POOL.submit(new RetrieveTriggersTask());
-        MinecraftForge.EVENT_BUS.register(new AutoGGHandler());
-        ClientCommandHandler.instance.registerCommand(new AutoGGCommand());
+        new AutoGGHandler().register();
+        AutoGGCommand.register();
 
-        // fix settings that were moved to seconds instead of ms
-        // so users aren't waiting 5000 seconds to send GG
-        if (autoGGConfig.getAutoGGDelay() > 5) autoGGConfig.setAutoGGDelay(1);
-        if (autoGGConfig.getSecondaryDelay() > 5) autoGGConfig.setSecondaryDelay(1);
+        POOL.submit(new RetrieveTriggersTask());
+        POOL.submit(this::checkUserLanguage);
     }
 
     private void checkUserLanguage() {
-        final String username = Minecraft.getMinecraft().getSession().getUsername();
-        final JsonObject json = WebHandler.fetchJson("https://api.sk1er.club/language/" + username);
-        final String language = JsonUtil.getOrDefaultString(json,"language", "ENGLISH");
-        this.usingEnglish = "ENGLISH".equals(language);
+        try {
+            Thread.sleep(5000);
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.getUser() == null) return;
+            final String username = mc.getUser().getName();
+            final JsonObject json = WebHandler.fetchJson("https://api.sk1er.club/language/" + username);
+            final String language = JsonUtil.getOrDefaultString(json, "language", "ENGLISH");
+            this.usingEnglish = "ENGLISH".equals(language);
+        } catch (Exception e) {
+            LOGGER.error("Failed to check user language", e);
+        }
     }
 
     public TriggersSchema getTriggers() {
-        return triggers;
+        return triggers != null ? triggers : new TriggersSchema(new Server[0]);
     }
 
     public void setTriggers(TriggersSchema triggers) {
         this.triggers = triggers;
-    }
-
-    public AutoGGConfig getAutoGGConfig() {
-        return autoGGConfig;
     }
 
     public String[] getPrimaryGGStrings() {
