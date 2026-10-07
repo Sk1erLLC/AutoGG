@@ -2,13 +2,13 @@ name: Build with Gradle
 
 on:
     push:
-        branches: '*'
+        branches: '**'
         paths-ignore:
             - 'README.md'
             - 'LICENSE'
             - '.gitignore'
     pull_request:
-        branches: '*'
+        branches: '**'
         paths-ignore:
             - 'README.md'
             - 'LICENSE'
@@ -19,8 +19,8 @@ permissions:
     contents: read
 
 concurrency:
-    # Maximum of one running workflow per pull request source branch or pushed branch
-    group: ${{ github.head_ref || github.ref }}
+    # Maximum of one running workflow per pull request or pushed branch
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
     cancel-in-progress: true
 
 jobs:

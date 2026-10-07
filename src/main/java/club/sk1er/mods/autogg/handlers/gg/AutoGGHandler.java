@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -26,16 +27,12 @@ import static club.sk1er.mods.autogg.AutoGG.POOL;
  * on.
  */
 public class AutoGGHandler {
-    private volatile Server server;
-    private volatile ConnectionInfo connection;
+    private final ServerTracker tracker = new ServerTracker();
     private final Cooldown ggCooldown = new Cooldown(10_000, System::currentTimeMillis);
 
     public void register() {
         ClientPlayConnectionEvents.JOIN.register((listener, sender, client) -> onJoinServer(client, listener));
-        ClientPlayConnectionEvents.DISCONNECT.register((listener, client) -> {
-            connection = null;
-            server = null;
-        });
+        ClientPlayConnectionEvents.DISCONNECT.register((listener, client) -> tracker.disconnect());
 
         ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) -> overlay || onChatReceived(message));
         ClientReceiveMessageEvents.ALLOW_CHAT.register((message, signedMessage, sender, params, receptionTimestamp) -> onChatReceived(message));
@@ -45,7 +42,7 @@ public class AutoGGHandler {
 
     private void onJoinServer(Minecraft client, ClientPacketListener listener) {
         ServerData serverData = client.getCurrentServer();
-        connection = new ConnectionInfo(listener.serverBrand(), serverData == null ? null : serverData.ip);
+        tracker.connect(new ConnectionInfo(listener.serverBrand(), serverData == null ? null : serverData.ip));
 
         if (AutoGG.INSTANCE.getAutoGGConfig().isModEnabled()) {
             detectServer();
@@ -63,10 +60,11 @@ public class AutoGGHandler {
      */
     public void detectServer() {
         POOL.submit(() -> {
-            ConnectionInfo connection = this.connection;
+            ConnectionInfo connection = tracker.connection();
+            if (connection == null) return;
             TriggersSchema triggers = AutoGG.INSTANCE.getTriggers();
-            // null when it's not a supported server, or we're not on one
-            server = connection == null || triggers == null ? null : triggers.findServer(connection);
+            // null when it's not a supported server
+            tracker.publish(connection, triggers == null ? null : triggers.findServer(connection));
         });
     }
 
@@ -74,9 +72,12 @@ public class AutoGGHandler {
      * @return false to hide the message
      */
     private boolean onChatReceived(Component message) {
-        Server server = this.server;
+        Server server = tracker.server();
         AutoGGConfig config = AutoGG.INSTANCE.getAutoGGConfig();
-        if (!config.isModEnabled() || server == null) return true;
+        ClientPacketListener listener = Minecraft.getInstance().getConnection();
+        if (!config.isModEnabled() || server == null || listener == null) return true;
+        // The network connection outlives the packet listener when a proxy moves the player between its servers
+        Connection origin = listener.getConnection();
 
         String stripped = ChatFormatting.stripFormatting(message.getString());
 
@@ -87,30 +88,30 @@ public class AutoGGHandler {
         POOL.submit(() -> {
             // Casual GG feature
             if (TriggerMatcher.shouldSayGG(server, stripped, config.isCasualAutoGGEnabled())) {
-                invokeGG(server);
+                invokeGG(server, origin);
             }
         });
 
         return true;
     }
 
-    private void invokeGG(Server server) {
+    private void invokeGG(Server server, Connection origin) {
         if (!ggCooldown.tryAcquire()) return;
 
         for (GGMessages.Message message : GGMessages.plan(server.getMessagePrefix(), AutoGG.INSTANCE.getAutoGGConfig(),
                 AutoGG.INSTANCE.getPrimaryGGStrings(), AutoGG.INSTANCE.getSecondaryGGStrings())) {
-            POOL.schedule(() -> sendMessage(message), message.delaySeconds(), TimeUnit.SECONDS);
+            POOL.schedule(() -> sendMessage(message, origin), message.delaySeconds(), TimeUnit.SECONDS);
         }
     }
 
     /**
-     * Sends the message as the player, on the client thread.
+     * Sends the message as the player, on the client thread, if they're still connected to the server whose game ended.
      */
-    private static void sendMessage(GGMessages.Message message) {
+    private static void sendMessage(GGMessages.Message message, Connection origin) {
         Minecraft mc = Minecraft.getInstance();
         mc.execute(() -> {
             ClientPacketListener connection = mc.getConnection();
-            if (mc.player == null || connection == null) return;
+            if (mc.player == null || connection == null || connection.getConnection() != origin) return;
             if (message.isCommand()) {
                 connection.sendCommand(message.text().substring(1));
             } else {
