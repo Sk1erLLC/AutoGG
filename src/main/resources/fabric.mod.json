@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "AutoGG automatically says a selectable phrase after a game has ended on supported servers.",
+  "authors": ["2Pi", "Sk1er LLC", "SirNapkin1334"],
+  "contact": {
+    "homepage": "https://sk1er.club/",
+    "sources": "https://github.com/Sk1erLLC/AutoGG"
+  },
+  "license": "GPL-3.0",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "club.sk1er.mods.autogg.AutoGG"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "${minecraft}",
+    "fabric-api": "*"
+  }
+}

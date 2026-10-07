@@ -1,0 +1,9 @@
+routes:
+  - id: triggers
+    url: https://static.sk1er.club/autogg/regex_triggers_3.json
+    jsonFile: web/triggers.json
+    delayMs: 600
+  - id: language
+    url: "https://api.sk1er.club/language/*"
+    json: { language: ENGLISH }
+    delayMs: 300

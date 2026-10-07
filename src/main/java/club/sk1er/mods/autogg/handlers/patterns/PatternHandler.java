@@ -1,9 +1,7 @@
 package club.sk1er.mods.autogg.handlers.patterns;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -14,17 +12,13 @@ import java.util.regex.Pattern;
 public class PatternHandler {
     public static PatternHandler INSTANCE = new PatternHandler();
 
-    private final Map<String, Pattern> patternCache = new HashMap<>();
+    private final Map<String, Pattern> patternCache = new ConcurrentHashMap<>();
 
     public Pattern getOrRegisterPattern(String pattern) {
         String processedPattern = PlaceholderAPI.INSTANCE.process(pattern);
 
-        Pattern p = patternCache.get(processedPattern);
-        if (p == null) {
-            p = patternCache.put(processedPattern, Pattern.compile(processedPattern));
-        }
-
-        return p;
+        // Triggers are matched on the client thread and on the pool at the same time
+        return patternCache.computeIfAbsent(processedPattern, Pattern::compile);
     }
 
     public void clearPatterns() {

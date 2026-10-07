@@ -21,74 +21,71 @@ package club.sk1er.mods.autogg;
 import club.sk1er.mods.autogg.command.AutoGGCommand;
 import club.sk1er.mods.autogg.config.AutoGGConfig;
 import club.sk1er.mods.autogg.handlers.gg.AutoGGHandler;
-import club.sk1er.mods.autogg.handlers.patterns.PlaceholderAPI;
+import club.sk1er.mods.autogg.handlers.patterns.GGPhrases;
 import club.sk1er.mods.autogg.handlers.web.WebHandler;
 import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
 import club.sk1er.mods.autogg.tasks.data.TriggersSchema;
-import club.sk1er.mods.autogg.util.JsonUtil;
-import com.google.gson.JsonObject;
+import club.sk1er.mods.autogg.util.LanguageCheck;
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Contains the main class for AutoGG which handles trigger schema setting/getting and the main initialization code.
  *
  * @author ChachyDev
  */
-@Mod(modid = "autogg", name = "AutoGG", version = "4.1.3")
-public class AutoGG {
+public class AutoGG implements ClientModInitializer {
 
-    @Mod.Instance
     public static AutoGG INSTANCE;
 
-    private final String[] primaryGGStrings = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"};
-    private final String[] secondaryGGStrings = {"Have a good day!", "<3", "AutoGG By Sk1er!", "gf", "Good Fight", "Good Round", ":D", "Well played!", "wp"};
-    private TriggersSchema triggers;
+    private volatile TriggersSchema triggers;
     private AutoGGConfig autoGGConfig;
+    private AutoGGHandler handler;
 
-    public boolean usingEnglish;
+    // Assume English until the language check says otherwise, so the warning isn't shown before it has answered
+    public volatile boolean usingEnglish = true;
 
-    public static final ScheduledExecutorService POOL = Executors.newScheduledThreadPool(5);
+    // Daemon threads, so a pending task can't keep the game running after it quits
+    public static final ScheduledExecutorService POOL = Executors.newScheduledThreadPool(5, new ThreadFactory() {
+        private final AtomicInteger count = new AtomicInteger();
 
-    @Mod.EventHandler
-    public void onFMLPreInitialization(FMLPreInitializationEvent event) {
-        POOL.submit(this::checkUserLanguage);
-    }
+        @Override
+        public Thread newThread(Runnable runnable) {
+            Thread thread = new Thread(runnable, "AutoGG-" + count.incrementAndGet());
+            thread.setDaemon(true);
+            return thread;
+        }
+    });
 
-    @Mod.EventHandler
-    public void onFMLInitialization(FMLInitializationEvent event) {
-        autoGGConfig = new AutoGGConfig();
-        autoGGConfig.preload();
+    @Override
+    public void onInitializeClient() {
+        INSTANCE = this;
 
-        Set<String> joined = new HashSet<>();
-        joined.addAll(Arrays.asList(primaryGGStrings));
-        joined.addAll(Arrays.asList(secondaryGGStrings));
+        // The session is only guaranteed to be set up once the client has started
+        ClientLifecycleEvents.CLIENT_STARTED.register(client -> POOL.submit(this::checkUserLanguage));
 
-        PlaceholderAPI.INSTANCE.registerPlaceHolder("antigg_strings", String.join("|", joined));
+        autoGGConfig = AutoGGConfig.load();
 
+        GGPhrases.registerPlaceholders();
+
+        handler = new AutoGGHandler();
+        handler.register();
+        AutoGGCommand.register();
         POOL.submit(new RetrieveTriggersTask());
-        MinecraftForge.EVENT_BUS.register(new AutoGGHandler());
-        ClientCommandHandler.instance.registerCommand(new AutoGGCommand());
 
-        // fix settings that were moved to seconds instead of ms
-        // so users aren't waiting 5000 seconds to send GG
-        if (autoGGConfig.getAutoGGDelay() > 5) autoGGConfig.setAutoGGDelay(1);
-        if (autoGGConfig.getSecondaryDelay() > 5) autoGGConfig.setSecondaryDelay(1);
+        autoGGConfig.migrateDelays();
+        autoGGConfig.save();
     }
 
     private void checkUserLanguage() {
-        final String username = Minecraft.getMinecraft().getSession().getUsername();
-        final JsonObject json = WebHandler.fetchJson("https://api.sk1er.club/language/" + username);
-        final String language = JsonUtil.getOrDefaultString(json,"language", "ENGLISH");
-        this.usingEnglish = "ENGLISH".equals(language);
+        final String username = Minecraft.getInstance().getUser().getName();
+        this.usingEnglish = LanguageCheck.isEnglish(WebHandler.fetchString("https://api.sk1er.club/language/" + username));
     }
 
     public TriggersSchema getTriggers() {
@@ -99,15 +96,19 @@ public class AutoGG {
         this.triggers = triggers;
     }
 
+    public AutoGGHandler getHandler() {
+        return handler;
+    }
+
     public AutoGGConfig getAutoGGConfig() {
         return autoGGConfig;
     }
 
     public String[] getPrimaryGGStrings() {
-        return primaryGGStrings;
+        return GGPhrases.PRIMARY;
     }
 
     public String[] getSecondaryGGStrings() {
-        return secondaryGGStrings;
+        return GGPhrases.SECONDARY;
     }
 }

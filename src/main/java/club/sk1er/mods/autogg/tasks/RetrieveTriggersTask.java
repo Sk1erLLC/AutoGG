@@ -44,5 +44,8 @@ public class RetrieveTriggersTask implements Runnable {
                 PatternHandler.INSTANCE.getOrRegisterPattern(pattern);
             }
         }
+
+        // The player may have joined a server before the triggers arrived
+        if (AutoGG.INSTANCE.getHandler() != null) AutoGG.INSTANCE.getHandler().detectServer();
     }
 }
