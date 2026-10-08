@@ -1,40 +1,29 @@
 package club.sk1er.mods.autogg.command;
 
-import club.sk1er.mods.autogg.AutoGG;
+import club.sk1er.mods.autogg.config.AutoGGConfigScreen;
 import club.sk1er.mods.autogg.handlers.gg.AutoGGHandler;
 import club.sk1er.mods.autogg.tasks.RetrieveTriggersTask;
-import gg.essential.universal.ChatColor;
-import gg.essential.universal.wrappers.message.UTextComponent;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 import static club.sk1er.mods.autogg.AutoGG.POOL;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
 
-public class AutoGGCommand extends CommandBase {
+public class AutoGGCommand {
 
-    @Override
-    public String getCommandName() {
-        return "autogg";
-    }
-
-    @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "autogg";
-    }
-
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-        if (args.length == 1 && args[0].equalsIgnoreCase("refresh")) {
-            POOL.submit(new RetrieveTriggersTask());
-            (new UTextComponent(ChatColor.GREEN + "Refreshed triggers!")).chat();
-            return;
-        }
-        AutoGGHandler.displayScreen = AutoGG.INSTANCE.getAutoGGConfig().gui();
-    }
-
-    @Override
-    public int getRequiredPermissionLevel() {
-        return 0;
+    public static void register() {
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(
+                literal("autogg")
+                        .executes(context -> {
+                            AutoGGHandler.displayScreen = new AutoGGConfigScreen(null);
+                            return 1;
+                        })
+                        .then(literal("refresh").executes(context -> {
+                            POOL.submit(new RetrieveTriggersTask());
+                            context.getSource().sendFeedback(Component.literal("Refreshed triggers!").withStyle(ChatFormatting.GREEN));
+                            return 1;
+                        }))
+        ));
     }
 }

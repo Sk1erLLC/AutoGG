@@ -1,49 +1,72 @@
-import gg.essential.gradle.util.noServerRunConfigs
-
 plugins {
-    kotlin("jvm")
-    id("gg.essential.multi-version")
-    id("gg.essential.defaults")
+    id("dev.kikugie.loom-back-compat")
 }
 
-val modGroup: String by project
-val modBaseName: String by project
-group = modGroup
-base.archivesName.set("$modBaseName-${platform.mcVersionStr}")
+version = "${property("mod.version")}+mc${sc.current.version}"
+group = property("mod.group") as String
+base.archivesName = property("mod.id") as String
 
-repositories {
-    maven("https://repo.spongepowered.org/repository/maven-public/")
-    maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
+val requiredJava: JavaVersion = JavaVersion.VERSION_25
+
+dependencies {
+    minecraft("com.mojang:minecraft:${sc.current.version}")
+    loomx.applyMojangMappings()
+
+    modImplementation("net.fabricmc:fabric-loader:${property("deps.fabric_loader")}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${property("deps.fabric_api")}")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 loom {
-    noServerRunConfigs()
-    runConfigs {
-        getByName("client") {
-            programArgs("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
-        }
+    fabricModJsonPath = rootProject.file("src/main/resources/fabric.mod.json")
+
+    runConfigs.all {
+        preferGradleTask = true
+        generateRunConfig = true
+        runDirectory = rootProject.file("run")
     }
 }
 
-val embed by configurations.creating
-configurations.implementation.get().extendsFrom(embed)
+java {
+    withSourcesJar()
+    targetCompatibility = requiredJava
+    sourceCompatibility = requiredJava
 
-dependencies {
-    embed("org.spongepowered:mixin:0.7-SNAPSHOT")
-    embed("gg.essential:vigilance:306")
-    embed(modImplementation("gg.essential:universalcraft-1.8.9-forge:369")!!)
-    modRuntimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.2.1")
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(requiredJava.majorVersion)
+    }
 }
 
-tasks.jar {
-    from(embed.files.map { zipTree(it) })
+tasks {
+    test {
+        useJUnitPlatform()
+    }
 
-    manifest.attributes(
-        mapOf(
-            "ModSide" to "CLIENT",
-            "FMLCorePluginContainsFMLMod" to "Yes, yes it does",
-            "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
-            "TweakOrder" to "0"
-        )
-    )
+    jar {
+        val projectName = project.name
+        inputs.property("projectName", projectName)
+
+        from(rootProject.file("LICENSE")) {
+            rename { "${it}_${projectName}" }
+        }
+    }
+
+    processResources {
+        fun MutableMap<String, String>.register(key: String, property: String) {
+            val value: String = sc.properties[property]
+            inputs.property(key, value)
+            set(key, value)
+        }
+
+        val props = buildMap {
+            register("id", "mod.id")
+            register("name", "mod.name")
+            register("version", "mod.version")
+            register("minecraft", "mod.mc_compat")
+        }
+
+        filesMatching("fabric.mod.json") { expand(props) }
+    }
 }

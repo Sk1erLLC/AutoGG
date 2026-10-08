@@ -1,0 +1,8 @@
+version: 2
+mod: { id: autogg }
+defaults:
+  platforms: fabric >=26.1
+  server: { address: mc.hypixel.net }
+  web:
+    routes:
+      - { use: sk1er }

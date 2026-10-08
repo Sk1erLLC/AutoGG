@@ -1,27 +1,26 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
         mavenCentral()
-        maven("https://maven.fabricmc.net")
-        maven("https://maven.architectury.dev/")
-        maven("https://maven.minecraftforge.net")
-        maven("https://repo.essential.gg/repository/maven-public")
-    }
-    plugins {
-        val egtVersion = "0.6.0"
-        id("gg.essential.multi-version.root") version egtVersion
+        gradlePluginPortal()
+        maven("https://maven.fabricmc.net/") { name = "Fabric" }
+        maven("https://maven.kikugie.dev/releases") { name = "KikuGie Releases" }
+        maven("https://maven.kikugie.dev/snapshots") { name = "KikuGie Snapshots" }
     }
 }
 
-rootProject.buildFileName = "root.gradle.kts"
-
-listOf(
-    "1.8.9"
-).forEach { version ->
-    include(":$version")
-    project(":$version").apply {
-        projectDir = file("versions/$version")
-        buildFileName = "../../build.gradle.kts"
-    }
-
+plugins {
+    id("dev.kikugie.stonecutter") version "0.9.6"
+    id("dev.kikugie.loom-back-compat") version "0.4"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
+
+stonecutter {
+    create(rootProject) {
+        version("26.1", "26.1")
+        version("26.2", "26.2")
+        version("26.3", "26.3")
+        vcsVersion = "26.3"
+    }
+}
+
+rootProject.name = sc.properties["mod.name"]

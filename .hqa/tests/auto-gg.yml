@@ -1,0 +1,23 @@
+goal: >-
+  Join the test server and wait until you are in its world, with chat visible. This server stands in for a
+  minigame network. Fire the game-end cue: the server announces the end of a game in chat with an indented
+  "1st Killer" line, as minigame servers do. Watch the chat for about six seconds. Then fire the game-over cue,
+  a second end-of-game line ("Game over!"), and watch the chat for another six seconds. Don't type anything in
+  chat yourself after joining: the reply under test is the mod's.
+pass:
+  - Within 5 seconds of the "1st Killer" line, chat shows the line "[HQA_Tester] gg", the server's announcement of a message the player sent with /say.
+  - Exactly one "[HQA_Tester] gg" line appears in the whole test, although two end-of-game lines were shown.
+fail: >-
+  No "[HQA_Tester] gg" line appears after the end-of-game lines; chat shows a plain chat message from
+  <HQA_Tester> with the raw text "/say gg" instead; two or more gg lines appear; the reply appears only after
+  the tester typed something; or the game shows an error or disconnects.
+budget: { actions: 40, minutes: 8 }
+cues:
+  game-end:
+    server: ['tellraw @a "                          1st Killer - Bot_Red - 7 Kills"']
+  game-over:
+    server: ['tellraw @a "                          Game over!"']
+expect:
+  web:
+    - { route: triggers, count: { atLeast: 1 } }
+  log: { absent: ["Failed to fetch the AutoGG triggers"] }

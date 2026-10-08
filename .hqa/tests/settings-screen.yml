@@ -1,0 +1,28 @@
+goal: >-
+  Join the test server and wait until you are in its world. Run the command /autogg refresh and look at the
+  chat's answer. Then run /autogg: AutoGG's settings screen should open. Look at every setting it offers, then
+  change three of them: set the (first) Phrase to "Good Game", switch Second Message on, and set the second
+  message's phrase to "AutoGG By Sk1er!". Leave the delays as they are. Close the screen and return to the game.
+  Then fire the game-end cue, which makes the server announce the end of a game in chat, and watch the chat for
+  about eight seconds. Don't type anything in chat yourself after closing the screen.
+pass:
+  - After /autogg refresh, chat shows a confirmation that reads "Refreshed triggers!".
+  - /autogg opens a screen titled AutoGG.
+  - >-
+    That screen shows all nine settings by name, each with its current value - AutoGG, Casual AutoGG, Delay (in
+    seconds), Phrase, Anti GG, Anti Karma, Second Message, the second message's phrase, and Second Message Delay (in
+    seconds).
+  - Within 5 seconds of the end-of-game line, chat shows "[HQA_Tester] Good Game".
+  - After that line, chat shows "[HQA_Tester] AutoGG By Sk1er!", and "Good Game" isn't sent a second time.
+fail: >-
+  /autogg is an unknown command or opens nothing; the screen lacks some of the nine settings or a control does
+  nothing when clicked; the reply after the end-of-game line is "gg" rather than "Good Game", so the changed
+  setting was ignored; the second message never appears or repeats "Good Game"; chat shows a plain chat message
+  from <HQA_Tester> with raw "/say ..." text; or the game shows an error or disconnects.
+budget: { actions: 80, minutes: 12 }
+cues:
+  game-end:
+    server: ['tellraw @a "                          1st Killer - Bot_Red - 7 Kills"']
+expect:
+  web:
+    - { route: triggers, count: { atLeast: 2 } }

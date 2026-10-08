@@ -1,0 +1,32 @@
+goal: >-
+  With AutoGG's Anti GG and Anti Karma settings switched on (they are already on in the seeded settings file),
+  join the test server and wait until you are in its world. Fire the chatter cue: the server shows, in order, a
+  start marker line, two other players' "gg"/"GG" chat lines, a "+5 Karma!" line, two ordinary chat lines from
+  the same players, and an end marker line. Take evidence of the chat within a few seconds of the cue, while
+  the lines are still on screen, then open the chat window so its whole history shows and take evidence again.
+  Don't type anything in chat yourself.
+pass:
+  - >-
+    Between the start and end marker lines, chat shows neither "[MVP+] Bot_One: gg" nor "[VIP] Bot_Two: GG".
+  - Between the start and end marker lines, chat shows no "+5 Karma!" line.
+fail: >-
+  "[MVP+] Bot_One: gg", "[VIP] Bot_Two: GG" or "+5 Karma!" shows in chat; the ordinary lines ("[MVP+] Bot_One:
+  nice try", "[VIP] Bot_Two: see you next game") or the marker lines are missing too, so chat was hidden
+  wholesale rather than filtered; or the game shows an error or disconnects.
+budget: { actions: 35, minutes: 8 }
+files:
+  config/autogg.json: |
+    {
+      "antiGGEnabled": true,
+      "antiKarmaEnabled": true
+    }
+cues:
+  chatter:
+    server:
+      - 'tellraw @a "--- chat test start ---"'
+      - 'tellraw @a "[MVP+] Bot_One: gg"'
+      - 'tellraw @a "[VIP] Bot_Two: GG"'
+      - 'tellraw @a "+5 Karma!"'
+      - 'tellraw @a "[MVP+] Bot_One: nice try"'
+      - 'tellraw @a "[VIP] Bot_Two: see you next game"'
+      - 'tellraw @a "--- chat test end ---"'

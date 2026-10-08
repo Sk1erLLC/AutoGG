@@ -1,0 +1,127 @@
+{
+	"servers": [{
+			"name": "Hypixel Server",
+			"kind": "SERVER_BRANDING",
+			"data": "Hypixel BungeeCord \\(.+\\) <- .+",
+			"messagePrefix": "/ac",
+			"triggers": [{
+					"type": 0,
+					"pattern": "^ +1st Killer - ?\\[?\\w*\\+*\\]? \\w+ - \\d+(?: Kills?)?$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ *1st (?:Place ?)?(?:-|:)? ?\\[?\\w*\\+*\\]? \\w+(?: : \\d+| - \\d+(?: Points?)?| - \\d+(?: x .)?| \\(\\w+ .{1,6}\\) - \\d+ Kills?|: \\d+:\\d+| - \\d+ (?:Zombie )?(?:Kills?|Blocks? Destroyed)| - \\[LINK\\])?$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +Winn(?:er #1 \\(\\d+ Kills\\): \\w+ \\(\\w+\\)|er(?::| - )(?:Hiders|Seekers|Defenders|Attackers|PLAYERS?|MURDERERS?|Red|Blue|RED|BLU|\\w+)(?: Team)?|ers?: ?\\[?\\w*\\+*\\]? \\w+(?:, ?\\[?\\w*\\+*\\]? \\w+)?|ing Team ?[\\:-] (?:Animals|Hunters|Red|Green|Blue|Yellow|RED|BLU|Survivors|Vampires))$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +Alpha Infected: \\w+ \\(\\d+ infections?\\)$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +Murderer: \\w+ \\(\\d+ Kills?\\)$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +You survived \\d+ rounds!$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +(?:UHC|SkyWars|Bridge|Sumo|Classic|OP|MegaWalls|Bow|NoDebuff|Blitz|Combo|Bow Spleef) (?:Duel|Doubles|3v3|4v4|Teams|Deathmatch|2v2v2v2|3v3v3v3)? ?- \\d+:\\d+$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +They captured all wools!$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +Game over!$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +[\\d\\.]+k?/[\\d\\.]+k? \\w+$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +(?:Criminal|Cop)s won the game!$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +\\[?\\w*\\+*\\]? \\w+ - \\d+ Final Kills$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +Zombies - \\d*:?\\d+:\\d+ \\(Round \\d+\\)$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ +. YOUR STATISTICS .$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ {36}Winner(s?)$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ {21}Bridge CTF [a-zA-Z]+ - \\d\\d:\\d\\d$"
+				},
+				{
+					"type": 1,
+					"pattern": "^MINOR EVENT! .+ in .+ ended$"
+				},
+				{
+					"type": 1,
+					"pattern": "^DRAGON EGG OVER! Earned [\\d,]+XP [\\d,]g clicking the egg \\d+ times$"
+				},
+				{
+					"type": 1,
+					"pattern": "^GIANT CAKE! Event ended! Cake's gone!$"
+				},
+				{
+					"type": 1,
+					"pattern": "^PIT EVENT ENDED: .+ \\[INFO\\]$"
+				},
+				{
+					"type": 2,
+					"pattern": "^(?:.* )?(?:\\[.+] )?\\w{1,16}(?: .+)?: (?:\u2764|${antigg_strings})$"
+				},
+				{
+					"type": 3,
+					"pattern": "^\\+(?<karma>\\d)+ Karma!$"
+				}
+			]
+		},
+		{
+			"name": "Mineplex Server",
+			"kind": "SERVER_IP",
+			"data": "^(?:(?:us|eu)\\.)?mineplex\\.com$",
+			"messagePrefix": "",
+			"triggers": [{
+					"type": 0,
+					"pattern": "^ .* won the game!$"
+				},
+				{
+					"type": 0,
+					"pattern": "^ 1st Place \\w{1,16}(?:, \\w{1,16})*$"
+				},
+				{
+					"type": 2,
+					"pattern": "^\\d+ [A-Z ]+ (?:. )?\\w{1,16} (?:${antigg_strings})$"
+				}
+			]
+		},
+		{
+			"name": "SuperAwesome Server",
+			"kind": "SERVER_IP",
+			"data": "^superawesome\\.dk$",
+			"messagePrefix": "",
+			"triggers": [{
+				"type": 0,
+				"pattern": "^(?:RØD|BLÅ) HOLD VINDER #GG$"
+			}]
+		}
+	]
+}
