@@ -1,4 +1,0 @@
-- Added support for Minecraft 26.1, 26.2 and 26.3 (Fabric)
-- New in-game settings screen: run /autogg
-- Fixed the second message repeating the first phrase on some servers
-- Fixed AutoGG staying off if you joined a server before its triggers loaded
