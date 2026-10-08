@@ -33,3 +33,6 @@ replay_*.log
 # kotlin
 kls_database.db
 .kotlin/
+
+# deploy
+.deploy-token
