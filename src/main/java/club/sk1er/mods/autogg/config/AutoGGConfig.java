@@ -48,9 +48,16 @@ public class AutoGGConfig extends Vigilant {
         type = PropertyType.SELECTOR, name = "Phrase",
         description = "Choose what message is said on game completion.",
         category = "General", subcategory = "General",
-        options = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D"}
+        options = {"gg", "GG", "gf", "Good Game", "Good Fight", "Good Round! :D", "Custom"}
     )
     private int autoGGPhrase = 0;
+
+    @Property(
+            type = PropertyType.TEXT, name = "Custom Phrase",
+            description = "Enter what message is said on game completion.",
+            category = "General", subcategory = "General"
+    )
+    private String customPhrase = "";
 
     @Property(
         type = PropertyType.SWITCH, name = "Second Message",
@@ -63,9 +70,16 @@ public class AutoGGConfig extends Vigilant {
         type = PropertyType.SELECTOR, name = "Phrase",
         description = "Send a secondary message sent after the first GG message.",
         category = "General", subcategory = "Secondary Message",
-        options = {"Have a good day!", "<3", "AutoGG By Sk1er!", "gf", "Good Fight", "Good Round", ":D", "Well played!", "wp"}
+        options = {"Have a good day!", "<3", "AutoGG By Sk1er!", "gf", "Good Fight", "Good Round", ":D", "Well played!", "wp", "Custom"}
     )
     private int autoGGPhrase2 = 0;
+
+    @Property(
+            type = PropertyType.TEXT, name = "Custom Secondary Phrase",
+            description = "Enter what secondary message is sent after the first GG message.",
+            category = "General", subcategory = "Secondary Message"
+    )
+    private String customPhrase2 = "";
 
     @Property(
         type = PropertyType.SLIDER, name = "Second Message Delay",
@@ -104,12 +118,28 @@ public class AutoGGConfig extends Vigilant {
         return autoGGPhrase;
     }
 
+    public String getCustomPhrase() {
+        return customPhrase;
+    }
+
+    public boolean shouldUseCustomPhrase() {
+        return autoGGPhrase == 6;
+    }
+
     public boolean isSecondaryEnabled() {
         return secondaryEnabled;
     }
 
     public int getAutoGGPhrase2() {
         return autoGGPhrase2;
+    }
+
+    public String getCustomPhrase2() {
+        return customPhrase2;
+    }
+
+    public boolean shouldUseCustomSecondaryPhrase() {
+        return autoGGPhrase2 == 9;
     }
 
     public int getSecondaryDelay() {

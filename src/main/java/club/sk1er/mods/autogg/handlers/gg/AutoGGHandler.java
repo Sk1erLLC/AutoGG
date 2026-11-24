@@ -113,18 +113,28 @@ public class AutoGGHandler {
             if (System.currentTimeMillis() - lastGG < 10_000) return;
             lastGG = System.currentTimeMillis();
 
-            String ggMessage = AutoGG.INSTANCE.getPrimaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase()];
+            String ggMessage = getGGMessage();
             int delay = AutoGG.INSTANCE.getAutoGGConfig().getAutoGGDelay();
 
             POOL.schedule(() -> Minecraft.getMinecraft().thePlayer.sendChatMessage(prefix.isEmpty() ? ggMessage : prefix + " " + ggMessage), delay, TimeUnit.SECONDS);
 
             if (AutoGG.INSTANCE.getAutoGGConfig().isSecondaryEnabled()) {
-                String secondGGMessage = AutoGG.INSTANCE.getSecondaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase2()];
+                String secondGGMessage = getSecondaryGGMessage();
                 int secondaryDelay = AutoGG.INSTANCE.getAutoGGConfig().getSecondaryDelay() + AutoGG.INSTANCE.getAutoGGConfig().getAutoGGDelay();
 
                 POOL.schedule(() -> Minecraft.getMinecraft().thePlayer.sendChatMessage(prefix.isEmpty() ? ggMessage : prefix + " " + secondGGMessage), secondaryDelay, TimeUnit.SECONDS);
             }
         }
+    }
+
+    private String getGGMessage() {
+        if (AutoGG.INSTANCE.getAutoGGConfig().shouldUseCustomPhrase()) return AutoGG.INSTANCE.getAutoGGConfig().getCustomPhrase();
+        return AutoGG.INSTANCE.getPrimaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase()];
+    }
+
+    private String getSecondaryGGMessage() {
+        if (AutoGG.INSTANCE.getAutoGGConfig().shouldUseCustomSecondaryPhrase()) return AutoGG.INSTANCE.getAutoGGConfig().getCustomPhrase2();
+        return AutoGG.INSTANCE.getSecondaryGGStrings()[AutoGG.INSTANCE.getAutoGGConfig().getAutoGGPhrase2()];
     }
 
     /**
